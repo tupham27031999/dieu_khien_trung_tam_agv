@@ -1,0 +1,14 @@
+{
+    "download_ip": "10.47.240.1",
+    "port": 5000,
+    "files": [
+        {
+            "name": "log_odds.npy",
+            "target": "data_input_output/maps/log_odds.npy"
+        },
+        {
+            "name": "markers.json",
+            "target": "data_input_output/maps/markers.json"
+        }
+    ]
+}

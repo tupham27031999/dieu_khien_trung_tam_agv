@@ -1,0 +1,640 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f6f9;
+    color: #333;
+}
+
+/* --- Header Styles --- */
+.app-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: stretch; /* Để các tab có thể kéo dài full chiều cao */
+    justify-content: flex-start;
+    position: relative; /* Để làm mốc tọa độ cho tab căn giữa */
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.app-logo {
+    height: 50px;
+    width: auto;
+    margin-right: 15px;
+    background-color: white; /* Nền trắng cho logo nếu cần */
+    border-radius: 4px;
+    padding: 2px;
+    transition: transform 0.3s ease;
+}
+
+.app-logo:hover {
+    transform: scale(1.05);
+}
+
+.header-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.app-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.app-version {
+    font-size: 0.8rem;
+    color: #bdc3c7;
+    margin-top: 2px;
+}
+
+/* --- Tab Styles in Header --- */
+.header-tabs {
+    display: flex;
+    align-items: stretch;
+    position: absolute;     /* Tách khỏi dòng chảy flex để căn giữa tuyệt đối */
+    left: 50%;              /* Đẩy sang 50% chiều ngang */
+    transform: translateX(-50%); /* Dịch ngược lại 50% kích thước của chính nó để vào giữa */
+    top: 0;
+    bottom: 0;
+}
+
+/* --- Tab Styles --- */
+.tab-container {
+    margin: 20px;
+}
+
+.tab-btn {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    padding: 0 25px; /* Tăng khoảng cách ngang */
+    height: 100%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    color: #bdc3c7; /* Màu chữ nhạt hơn trên nền tối */
+    border-bottom: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-btn:hover {
+    background-color: #34495e;
+    color: white;
+}
+
+.tab-btn.active {
+    color: white;
+    border-bottom: 4px solid #3498db; /* Màu xanh nổi bật */
+    font-weight: bold;
+    background-color: transparent;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    animation: fadeIn 0.5s;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    min-height: calc(100vh - 110px); /* Chiều cao tối thiểu để lấp đầy màn hình */
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* --- Setting Tab Layout --- */
+.setting-layout {
+    display: flex;
+    gap: 20px;
+    height: 100%;
+}
+
+.setting-left {
+    flex: 0 0 400px; /* Chiều rộng cố định hoặc tỷ lệ % */
+    padding-right: 20px;
+    border-right: 1px solid #eee;
+}
+
+.setting-right {
+    flex: 1; /* Chiếm phần còn lại */
+    background-color: #fafafa;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.placeholder-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #aaa;
+    border: 2px dashed #ddd;
+}
+
+/* --- Form Elements --- */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Đảm bảo padding không làm vỡ layout */
+    font-size: 14px;
+}
+
+textarea.form-control {
+    resize: vertical;
+    background-color: #f9f9f9;
+}
+
+.row-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+}
+
+.option-label {
+    margin-bottom: 0 !important; /* Ghi đè margin của label chung */
+}
+
+/* --- Toggle Switch CSS --- */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #2ecc71; /* Màu xanh lá khi ON */
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2ecc71;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* --- Shelf Grid Styles --- */
+.shelf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.shelf-btn {
+    padding: 12px 5px;
+    background-color: white;
+    border: 1px solid #3498db;
+    color: #3498db;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.shelf-btn:hover {
+    background-color: #ecf0f1;
+}
+
+/* Class active khi nhấn (đổi màu 1s) */
+.shelf-btn.clicked {
+    background-color: #e74c3c !important; /* Màu đỏ cam */
+    color: white !important;
+    border-color: #e74c3c !important;
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+
+/* --- Selected Tags Styles --- */
+.selected-shelves-box {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+    min-height: 50px;
+}
+
+.small-title {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-item {
+    background-color: #3498db;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tag-item:hover {
+    background-color: #c0392b; /* Màu đỏ khi hover để báo hiệu xóa */
+}
+
+.tag-item::after {
+    content: " \00d7"; /* Dấu X */
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* --- Action Buttons --- */
+.action-buttons {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px; /* Khoảng cách giữa các nút */
+}
+
+.btn-primary {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #1a5276;
+}
+
+/* Class active cho nút gửi (thành công) */
+.btn-primary.success-anim {
+    background-color: #2ecc71 !important; /* Màu xanh lá */
+    pointer-events: none; /* Không cho bấm liên tục */
+}
+
+/* --- Button Warning (Nút hoàn thành) --- */
+.btn-warning {
+    background-color: #f39c12; /* Màu cam */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.btn-warning:hover {
+    background-color: #d35400;
+}
+
+.btn-warning.success-anim {
+    background-color: #2ecc71 !important; /* Chuyển sang xanh khi thành công */
+    pointer-events: none; /* Không cho bấm liên tục */
+}
+
+/* --- Map Toolbar & Markers --- */
+.map-toolbar-container {
+    position: absolute;
+    top: 140px; /* Điều chỉnh vị trí dọc */
+    right: 30px; /* Điều chỉnh vị trí ngang */
+    z-index: 1000; /* Đảm bảo nổi lên trên bản đồ */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.map-toolbar {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    width: 250px;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.map-toolbar.hidden {
+    display: none;
+}
+
+.map-tool-btn {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.map-tool-btn.active {
+    background-color: #dff9fb;
+    border-color: #81ecec;
+    color: #00cec9;
+}
+
+.map-tool-btn:hover { background: #f0f0f0; }
+.save-btn { background: #3498db; color: white; border: none; width: 100%; }
+.save-btn:hover { background: #2980b9; }
+.danger-btn { background: #e74c3c; color: white; border: none; width: 100%; }
+.danger-btn:hover { background: #c0392b; }
+.info-btn { background: #9b59b6; color: white; border: none; width: 100%; }
+.info-btn:hover { background: #8e44ad; }
+
+.tool-input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+.tool-hint { font-size: 0.8rem; color: #666; font-style: italic; margin-top: 5px; }
+
+/* Marker Styles (Giá kệ trên bản đồ) */
+.shelf-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto; /* Để nhận sự kiện click */
+    
+    background-color: #3498db; /* Màu xanh dương */
+    border: 2px solid #2980b9;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    overflow: hidden;
+    box-sizing: border-box; /* Đảm bảo border không làm tăng kích thước thực tế */
+    transition: all 0.2s;
+    z-index: 10; /* Đảm bảo marker nằm trên các lớp SVG/Graph (index 0, 1) để nhận click */
+}
+
+/* Hiệu ứng khi kệ được chọn */
+.shelf-marker.selected-marker {
+    background-color: #e74c3c;
+    border-color: #c0392b;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.8);
+    z-index: 100;
+}
+
+/* --- Button Warning (Nút hoàn thành) --- */
+.btn-warning {
+    background-color: #f39c12; /* Màu cam */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.btn-warning:hover {
+    background-color: #d35400;
+}
+
+.btn-warning.success-anim {
+    background-color: #2ecc71 !important; /* Chuyển sang xanh khi thành công */
+    pointer-events: none; /* Không cho bấm liên tục */
+}
+
+/* --- Graph Elements (Điểm và Đường) --- */
+.graph-point {
+    width: 6px; /* Tăng kích thước để dễ click */
+    height: 6px;
+    background-color: #9b59b6;
+    border-radius: 50%;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    box-sizing: border-box;
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* Để click xuyên xuống canvas bản đồ */
+    z-index: 1; /* Nằm dưới kệ hàng */
+    overflow: visible; /* Để hiển thị nhãn tên điểm ra bên ngoài */
+}
+
+.graph-point:hover {
+    box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.3);
+}
+
+.point-label {
+    position: absolute;
+    left: 8px; /* Cách điểm tròn 8px về bên phải */
+    top: 50%;
+    transform: translateY(-50%); /* Căn giữa theo chiều dọc */
+    font-size: 10px;
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap; /* Không xuống dòng */
+    text-shadow: 0 0 2px #fff; /* Viền trắng giúp chữ dễ đọc */
+}
+
+.graph-svg-overlay {
+    pointer-events: none;
+    overflow: visible; /* Ngăn SVG cắt bớt các nét vẽ ở biên */
+    display: block;
+    margin: 0;
+    padding: 0;
+    z-index: 0; /* Nằm dưới cùng */
+    opacity: 0.6;
+    shape-rendering: geometricPrecision; /* Tăng độ chính xác khi vẽ đường */
+}
+
+/* --- Backup Management Styles --- */
+.backup-card-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.backup-card-item h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-size: 1rem;
+}
+
+.backup-file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+/* --- Modal Styles --- */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 320px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-btn {
+    padding: 8px 15px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.modal-btn.cancel { background: #ecf0f1; }
+
+.agv-path-svg-overlay {
+    pointer-events: none;
+    overflow: visible;
+    display: block;
+    margin: 0;
+    padding: 0;
+    z-index: 5; /* Nằm trên sơ đồ tĩnh (0) nhưng dưới AGV (50) */
+    shape-rendering: geometricPrecision;
+}
+
+/* Classes to hide elements */
+.hidden-layer {
+    display: none !important;
+}
+
+/* --- Cải thiện giao diện Điểm chiếm dụng --- */
+.occ-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    margin: 2px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.occ-tag.cond { background-color: #dff9fb; color: #2980b9; border: 1px solid #74b9ff; }
+.occ-tag.lock { background-color: #ffeaa7; color: #e67e22; border: 1px solid #fab1a0; }
+.occ-tag:hover { background-color: #ff7675; color: white; border-color: #d63031; }
+.occ-tag i { margin-left: 5px; font-size: 0.65rem; }
+
+.occ-rule-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.2s;
+}
+.occ-rule-item:hover { background-color: #f8f9fa; }
+
+/* --- AGV Overlay Styles --- */
+.agv-container {
+    pointer-events: none; /* Không cản trở click bản đồ */
+    display: block;
+}
+
+.agv-body {
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s linear; /* Cập nhật quay mượt mà hơn */
+    z-index: 50;
+    width: 100%; 
+    height: 100%;
+}
+
+.agv-arrow-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}

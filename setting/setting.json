@@ -1,0 +1,19 @@
+{
+    "ten_logo": "logo.png",
+    "ten_map": "0002",
+    "path_markers": "data_input_output/maps/markers.json",
+    "path_diem_chiem_dung": "data_input_output/maps/diem_chiem_dung.json",
+    "ten_danh_sach_diem": "t5.json",
+    "ten_danh_sach_duong": "t5.json",
+    "path_folder_upload": "update_phan_mem/upload",
+    "path_folder_dowload": "update_phan_mem/download",
+    "path_backup": "data_backup",
+    "path_download_json": "update_phan_mem/download.json",
+
+    "map_resolution": 20,
+    "DANH_SACH_AGV": ["agv1", "agv2", "agv3", "agv4", "agv5", "agv6", "agv7"],
+    "CAC_LOAI_KE": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "tra_hang", "lay_hang"],
+    "kich_thuoc_agv": [50,30],
+    "color_list": [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255], [0, 255, 255], [26, 127, 239]],
+    "BASE_IP": ["192.168.11.18"]
+}

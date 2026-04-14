@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ ten_dieu_de }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Thư viện icon FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon từ logo -->
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+    <!-- Thư viện OpenSeadragon Local -->
+    <script src="{{ url_for('static', filename='openseadragon.min/openseadragon.min.js') }}"></script>
+    
+    <!-- Dữ liệu cấu hình cho Javascript -->
+    <script>
+        const AGV_LIST = {{ danh_sach_agv | tojson }};
+        const DEFAULT_OPTIONS = {{ lua_chon_yeu_cau | tojson }};
+        const SHELF_DATA = {{ cac_gia_hang | tojson }};
+        const FULL_SHELF_DATA = {{ ban_do_ke | tojson }};
+        const SERVER_AGV_STATES = {{ thong_tin_da_chon | tojson }};
+        const CONFIG_SHOW_POINTS = {{ hien_thi_diem | tojson }};
+        const CONFIG_SHOW_PATHS = {{ hien_thi_duong | tojson }};
+        const SHELF_GROUPS = {{ cac_loai_ke | tojson }};
+        const AGV_REALTIME_STATES = {{ agv_realtime_states | tojson }};
+        const AGV_COLORS = {{ agv_colors | tojson }};
+        const MAP_RESOLUTION = {{ map_resolution | tojson }};
+        const AGV_SIZE_PX = {{ kich_thuoc_agv | tojson }};
+    </script>
+</head>
+<body>
+    <!-- Thanh tiêu đề -->
+    <div class="app-header">
+        <div class="header-left">
+            <!-- Logo từ thư mục static -->
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="AGV Logo" class="app-logo">
+            <div class="header-info">
+                <h1 class="app-title">{{ ten_dieu_de }}</h1>
+                <span class="app-version">Version: {{ version }}</span>
+            </div>
+        </div>
+        <div class="header-tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'homeTab')">
+                <i class="fa-solid fa-house"></i> Home
+            </button>
+            <button class="tab-btn" onclick="openTab(event, 'viewTab')">
+                <i class="fa-solid fa-eye"></i> View
+            </button>
+            <button class="tab-btn" onclick="openTab(event, 'settingTab')">
+                <i class="fa-solid fa-gear"></i> Setting
+            </button>
+        </div>
+    </div>
+
+    <!-- Khu vực Tabs -->
+    <div class="tab-container">
+        <!-- Nội dung Tab Home (Cũ là Setting) -->
+        <div id="homeTab" class="tab-content active">
+            <div class="setting-layout">
+                <!-- Khung bên trái: Các lựa chọn -->
+                <div class="setting-left">
+                    <h2>Cấu hình AGV</h2>
+                    
+                    <!-- 1. Combobox chọn AGV -->
+                    <div class="form-group">
+                        <label for="agv-select">Chọn AGV:</label>
+                        <select id="agv-select" class="form-control">
+                            {% for agv in danh_sach_agv %}
+                                <option value="{{ agv }}">{{ agv }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- 2. Text thông tin AGV (Cập nhật liên tục) -->
+                    <div class="form-group">
+                        <label for="info-display">Thông tin hệ thống:</label>
+                        <textarea id="info-display" class="form-control" readonly rows="3">{{ thong_tin_hien_thi }}</textarea>
+                    </div>
+
+                    <!-- 3. Các lựa chọn động từ lua_chon_yeu_cau -->
+                    <div class="dynamic-options">
+                        {% for key, item in lua_chon_yeu_cau.items() %}
+                        <div class="form-group row-item">
+                            <label class="option-label">{{ item.ten_hien_thi }}</label>
+                            
+                            {% if item.loai == 'select' %}
+                                <select class="form-control" name="{{ key }}">
+                                    {% for opt in item.options %}
+                                        <option value="{{ opt }}" {% if opt == item.value %}selected{% endif %}>{{ opt }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% elif item.loai == 'on/off' %}
+                                <label class="switch">
+                                    <input type="checkbox" name="{{ key }}" {% if item.value == 'on' %}checked{% endif %}>
+                                    <span class="slider round"></span>
+                                </label>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Khung bên phải: Hiển thị khác (Placeholder) -->
+                <div class="setting-right">
+                    <h3>Lựa chọn giá linh kiện</h3>
+                    
+                    <!-- Khu vực hiển thị danh sách các giá đã chọn -->
+                    <div class="selected-shelves-box">
+                        <p class="small-title">Danh sách đã chọn:</p>
+                        <div id="selected-list" class="tags-container"></div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="btn-send-list" class="btn-primary">Gửi danh sách đích</button>
+                        <button id="btn-complete" class="btn-warning">Đã hoàn thành</button>
+                    </div>
+
+                    <div id="shelf-container" class="shelf-grid">
+                        <!-- Các nút giá hàng sẽ được render tại đây bằng JS -->
+                        <p class="text-muted">Vui lòng chọn loại giá hàng.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nội dung Tab View -->
+        <div id="viewTab" class="tab-content">
+            <!-- Viewer chiếm toàn bộ chiều cao còn lại của màn hình (trừ header và padding) -->
+            <div id="openseadragon-viewer" style="width: 100%; height: calc(100vh - 120px); background-color: #eee;"></div>
+            
+            <!-- Thanh công cụ bản đồ -->
+            <div class="map-toolbar-container">
+                <button id="toggle-toolbar-btn" class="map-tool-btn" title="Ẩn/Hiện công cụ"><i class="fa-solid fa-bars"></i></button>
+                
+                <div id="map-toolbar" class="map-toolbar">
+                    <h4>Công cụ bản đồ</h4>
+                    <div class="toolbar-group">
+                        <button id="btn-toggle-points" class="map-tool-btn {% if hien_thi_diem %}active{% endif %}" title="Ẩn/Hiện Điểm"><i class="fa-solid fa-circle-dot"></i> Điểm</button>
+                        <button id="btn-toggle-paths" class="map-tool-btn {% if hien_thi_duong %}active{% endif %}" title="Ẩn/Hiện Đường"><i class="fa-solid fa-route"></i> Đường</button>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button id="btn-toggle-occupied" class="map-tool-btn info-btn"><i class="fa-solid fa-lock"></i> Tạo Điểm Chiếm Dụng</button>
+                    </div>
+                    <div id="occupied-points-panel" class="hidden-layer" style="border: 1px solid #ddd; padding: 10px; margin-top: 5px; background: #fff; border-radius: 4px;">
+                        <p class="small-title">Cấu hình khóa điểm:</p>
+                        <div style="font-size: 0.8rem; margin-bottom: 5px; background: #f9f9f9; padding: 5px; border-radius: 3px;">
+                            <strong>Xét:</strong> <span id="occ-condition-list" style="color: #2980b9;">-</span> <br>
+                            <strong>Khóa:</strong> <span id="occ-locked-list" style="color: #e74c3c;">-</span>
+                        </div>
+                        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                            <button id="btn-occ-select-cond" class="map-tool-btn" style="flex:1; font-size: 0.7rem;">1. Chọn xét</button>
+                            <button id="btn-occ-select-lock" class="map-tool-btn" style="flex:1; font-size: 0.7rem;">2. Chọn khóa</button>
+                        </div>
+                        <button id="btn-occ-add-rule" class="map-tool-btn save-btn" style="font-size: 0.8rem; margin-bottom: 5px;">Thêm Quy Tắc</button>
+                        <div id="occ-rules-list" style="max-height: 120px; overflow-y: auto; font-size: 0.75rem; border-top: 1px solid #eee; padding-top: 5px;">
+                            <!-- Danh sách quy tắc sẽ hiện ở đây -->
+                        </div>
+                        <button id="btn-save-occupied" class="map-tool-btn save-btn" style="margin-top:5px; width: 100%; background-color: #27ae60;">Lưu Toàn Bộ</button>
+                    </div>
+
+                    <!-- Form nhập liệu chi tiết cho Kệ -->
+                    <div class="toolbar-group">
+                        <label class="tool-hint" style="margin-top:0;">Thông tin kệ:</label>
+                        <input type="text" id="marker-name-input" placeholder="Tên kệ (VD: B01)" class="tool-input">
+                        
+                        <div style="display: flex; gap: 5px;">
+                            <select id="marker-group-select" class="tool-input" style="flex: 1;">
+                                <option value="">--Hàng--</option>
+                                <!-- JS sẽ điền options từ SHELF_GROUPS -->
+                            </select>
+                            <input type="text" id="marker-point-input" placeholder="Điểm lấy (P10)" class="tool-input" list="point-suggestions" style="flex: 2;">
+                            <datalist id="point-suggestions"></datalist>
+                        </div>
+
+                        <div style="display: flex; gap: 5px;">
+                            <input type="number" id="marker-x" placeholder="X (px)" class="tool-input" step="1">
+                            <input type="number" id="marker-y" placeholder="Y (px)" class="tool-input" step="1">
+                        </div>
+
+                        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                            <input type="number" id="marker-width" placeholder="Rộng (50)" class="tool-input" style="margin-bottom: 0;">
+                            <input type="number" id="marker-height" placeholder="Cao (30)" class="tool-input" style="margin-bottom: 0;">
+                        </div>
+                        <button id="btn-add-marker" class="map-tool-btn"><i class="fa-solid fa-plus"></i> Thêm Kệ</button>
+                        <button id="btn-update-marker" class="map-tool-btn info-btn" disabled><i class="fa-solid fa-pen"></i> Cập nhật Kệ</button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="btn-save-map" class="map-tool-btn save-btn"><i class="fa-solid fa-floppy-disk"></i> Lưu Bản Đồ</button>
+                        <button id="btn-delete-marker" class="map-tool-btn danger-btn" disabled><i class="fa-solid fa-trash"></i> Xóa Kệ Chọn</button>
+                        <button id="btn-clear-map" class="map-tool-btn danger-btn"><i class="fa-solid fa-trash"></i> Xóa Tất Cả</button>
+                    </div>
+                    <p id="map-status" class="tool-hint" style="color: #d35400; font-weight: bold; min-height: 20px;"></p>
+                    <p class="tool-hint">Chọn "Thêm Kệ" rồi click vào bản đồ để đặt.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nội dung Tab Setting (Mới) -->
+        <div id="settingTab" class="tab-content">
+            <h2>Cài đặt hệ thống</h2>
+            <div class="update-section" style="max-width: 600px; border: 1px solid #ddd; padding: 20px; border-radius: 8px; background: #fdfdfd;">
+                <h3><i class="fa-solid fa-cloud-arrow-up"></i> Trung tâm cập nhật AGV</h3>
+                <p class="tool-hint">Sử dụng tính năng này để đồng bộ bản đồ hoặc cấu hình mới cho toàn bộ AGV trong mạng.</p>
+                
+                <div class="form-group">
+                    <label>Tải file lên server (Quét bản đồ mới):</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="file" id="update-file-input" class="form-control" style="padding: 5px;">
+                        <button id="btn-upload-now" class="btn-primary" style="white-space: nowrap;"><i class="fa-solid fa-upload"></i> Tải lên</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px; background: #eee; padding: 10px; border-radius: 4px;">
+                    <label style="font-size: 0.9rem;">File đã tải lên (Chờ Apply):</label>
+                    <ul id="pending-files-list" style="font-size: 0.85rem; color: #555; margin-top: 5px; padding-left: 20px;">
+                        <li>Chưa có file nào</li>
+                    </ul>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btn-refresh-files" class="map-tool-btn" style="width: auto; padding: 2px 10px; font-size: 0.7rem;"><i class="fa-solid fa-arrows-rotate"></i> Làm mới</button>
+                        <button id="btn-clear-upload" class="map-tool-btn danger-btn" style="width: auto; padding: 2px 10px; font-size: 0.7rem;"><i class="fa-solid fa-trash-can"></i> Xóa hết</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #3498db;">
+                    <label>BƯỚC 1: Cập nhật Server</label>
+                    <p class="tool-hint">Tải các file trong download.json từ ip agv về hệ thống (nếu cần tải từ agv về, nếu không qua Bước 2)</p>
+                    <button id="btn-apply-system-update" class="btn-warning" style="width: 100%; margin-top: 5px;">
+                        <i class="fa-solid fa-file-import"></i> 1. CẬP NHẬT SERVER
+                    </button>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label>BƯỚC 2: Đồng bộ AGV khác</label>
+                    <p class="tool-hint">Ra lệnh cho 7 AGV khác tự động tải file từ máy này về.</p>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btn-deploy-all" class="btn-primary" style="flex: 1; background-color: #8e44ad;">
+                            <i class="fa-solid fa-tower-broadcast"></i> ĐỒNG BỘ TOÀN MẠNG
+                        </button>
+                    </div>
+                </div>
+
+                <p id="update-status-msg" class="tool-hint" style="margin-top:15px; font-weight:bold; color: #e67e22; white-space: pre-wrap;"></p>
+            </div>
+
+                <!-- Backup Management Card -->
+                <div class="connection-section" style="max-width: 600px; border: 1px solid #ddd; padding: 20px; border-radius: 8px; background: #fdfdfd; margin-top: 20px;">
+                    <h3><i class="fa-solid fa-cloud-arrow-up"></i> Quản lý sao lưu</h3>
+                    <p class="tool-hint">Quay lại bản cũ khi bản mới cập nhật không phù hợp nữa.</p>
+                    <button class="action-btn btn-primary" onclick="loadBackupList()" style="width: 100%;">
+                        <i class="fa-solid fa-arrows-rotate"></i> Tải danh sách sao lưu
+                    </button>
+                    <div id="backup-list-container" style="margin-top: 15px;">
+                        <p class="text-muted">Chưa có bản sao lưu nào được tải.</p>
+                    </div>
+                </div>
+
+                <!-- Modal để hiển thị chi tiết file trong bản sao lưu -->
+                <div id="backup-detail-modal" class="modal-overlay">
+                    <div class="modal-content">
+                        <h3>Chi tiết bản sao lưu <span id="modal-backup-timestamp"></span></h3>
+                        <div id="modal-backup-files" class="modal-body"></div>
+                        <div class="modal-footer"><button class="modal-btn cancel" onclick="closeBackupDetailModal()">Đóng</button></div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="connection-section" style="max-width: 600px; border: 1px solid #ddd; padding: 20px; border-radius: 8px; background: #fdfdfd; margin-top: 20px;">
+                <h3><i class="fa-solid fa-network-wired"></i> Trạng thái kết nối AGV</h3>
+                <p class="tool-hint">Danh sách các AGV đang gửi dữ liệu về Server này.</p>
+                
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: #f2f2f2; text-align: left;">
+                            <th style="padding: 8px; border-bottom: 2px solid #ddd;">AGV</th>
+                            <th style="padding: 8px; border-bottom: 2px solid #ddd;">Địa chỉ (IP:Port)</th>
+                            <th style="padding: 8px; border-bottom: 2px solid #ddd;">Trạng thái</th>
+                            <th style="padding: 8px; border-bottom: 2px solid #ddd;">Phản hồi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="connection-list-body">
+                        <tr>
+                            <td colspan="4" style="padding: 10px; text-align: center; color: #999;">Đang tìm kiếm AGV...</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="tool-hint" style="margin-top: 10px; color: #2980b9;">
+                    <i class="fa-solid fa-info-circle"></i> Click vào địa chỉ để mở giao diện web của AGV đó.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script xử lý chuyển Tab -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

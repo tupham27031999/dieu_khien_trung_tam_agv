@@ -1,0 +1,209 @@
+[
+    {
+        "x": 0.3396,
+        "y": 0.4088,
+        "name": "B01",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G11"
+    },
+    {
+        "x": 0.3524,
+        "y": 0.409,
+        "name": "B02",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G11"
+    },
+    {
+        "x": 0.3674,
+        "y": 0.4092,
+        "name": "B03",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G21"
+    },
+    {
+        "x": 0.3808,
+        "y": 0.4092,
+        "name": "B04",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G21"
+    },
+    {
+        "x": 0.3936,
+        "y": 0.4088,
+        "name": "B05",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G21"
+    },
+    {
+        "x": 0.4044887982014236,
+        "y": 0.4085163942625231,
+        "name": "B06",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G21"
+    },
+    {
+        "x": 0.3538,
+        "y": 0.4298,
+        "name": "C01",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G11"
+    },
+    {
+        "x": 0.3676,
+        "y": 0.4298,
+        "name": "C02",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G21"
+    },
+    {
+        "x": 0.3806,
+        "y": 0.4296,
+        "name": "C03",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G21"
+    },
+    {
+        "x": 0.3928,
+        "y": 0.429,
+        "name": "C04",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G21"
+    },
+    {
+        "x": 0.405,
+        "y": 0.429,
+        "name": "C05",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G21"
+    },
+    {
+        "x": 0.4196,
+        "y": 0.4286,
+        "name": "C06",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G31"
+    },
+    {
+        "x": 0.4318,
+        "y": 0.4282,
+        "name": "C07",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G31"
+    },
+    {
+        "x": 0.4454,
+        "y": 0.4274,
+        "name": "C08",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G41"
+    },
+    {
+        "x": 0.4576,
+        "y": 0.4276,
+        "name": "C09",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G41"
+    },
+    {
+        "x": 0.4708,
+        "y": 0.4272,
+        "name": "C10",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G51"
+    },
+    {
+        "x": 0.484,
+        "y": 0.427,
+        "name": "C11",
+        "width": 50,
+        "height": 30,
+        "group": "C",
+        "diem_lay_hang": "G51"
+    },
+    {
+        "x": 0.418,
+        "y": 0.4076,
+        "name": "B07",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G31"
+    },
+    {
+        "x": 0.4318,
+        "y": 0.4068,
+        "name": "B08",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G31"
+    },
+    {
+        "x": 0.4448,
+        "y": 0.4066,
+        "name": "B09",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G41"
+    },
+    {
+        "x": 0.4584,
+        "y": 0.4068,
+        "name": "B10",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G41"
+    },
+    {
+        "x": 0.4706,
+        "y": 0.407,
+        "name": "B11",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G51"
+    },
+    {
+        "x": 0.4846,
+        "y": 0.407,
+        "name": "B12",
+        "width": 50,
+        "height": 30,
+        "group": "B",
+        "diem_lay_hang": "G51"
+    }
+]
