@@ -14,6 +14,7 @@ let mapImgWidth = 1; // Chiều rộng ảnh bản đồ (pixel) dùng để quy
 let agvOverlays = {}; // Lưu trữ các element AGV overlay: { "agv1": HTMLElement }
 let dynamicPathSvg = null; // Layer SVG chứa đường đi động của các AGV
 let allGraphPoints = []; // Lưu danh sách điểm để tính toán khoảng cách
+let allGraphPaths = [];  // Lưu danh sách đường bao gồm cả loại đường (curve/none)
 let isCreatingOccupiedRule = false;
 let occSelectingType = null; // 'cond' (điểm xét) hoặc 'lock' (điểm khóa)
 let currentOccCondition = [];
@@ -1038,6 +1039,7 @@ function loadGraphData() {
             if (!data.points || !data.paths) return;
             
             mapImgWidth = data.dims[0]; // Lưu chiều rộng ảnh để tính toán tọa độ
+            allGraphPaths = data.paths; // Lưu global để dùng cho vẽ đường đi động của AGV
 
             const pointsDatalist = document.getElementById('point-suggestions');
 
@@ -1060,15 +1062,27 @@ function loadGraphData() {
             
             // Vẽ từng đoạn đường
             data.paths.forEach(path => {
-                const line = document.createElementNS(svgNS, "line");
-                line.setAttribute('x1', path.start.x);
-                line.setAttribute('y1', path.start.y);
-                line.setAttribute('x2', path.end.x);
-                line.setAttribute('y2', path.end.y);
-                line.setAttribute('stroke', '#3498db');
-                line.setAttribute('stroke-width', '2.5'); // Tăng nhẹ độ dày để dễ nhìn
-                line.setAttribute('stroke-linecap', 'round'); // Bo tròn đầu đường để khớp tâm điểm
-                svgNode.appendChild(line);
+                if (path.type === 'curve' && path.control) {
+                    // Vẽ đường cong Quadratic Bezier (Q)
+                    const curve = document.createElementNS(svgNS, "path");
+                    const d = `M ${path.start.x} ${path.start.y} Q ${path.control.x} ${path.control.y} ${path.end.x} ${path.end.y}`;
+                    curve.setAttribute('d', d);
+                    curve.setAttribute('fill', 'none');
+                    curve.setAttribute('stroke', '#3498db');
+                    curve.setAttribute('stroke-width', '2.5');
+                    curve.setAttribute('stroke-linecap', 'round');
+                    svgNode.appendChild(curve);
+                } else {
+                    const line = document.createElementNS(svgNS, "line");
+                    line.setAttribute('x1', path.start.x);
+                    line.setAttribute('y1', path.start.y);
+                    line.setAttribute('x2', path.end.x);
+                    line.setAttribute('y2', path.end.y);
+                    line.setAttribute('stroke', '#3498db');
+                    line.setAttribute('stroke-width', '2.5'); 
+                    line.setAttribute('stroke-linecap', 'round');
+                    svgNode.appendChild(line);
+                }
             });
 
             // Tính toán tỷ lệ ảnh (Aspect Ratio) để đặt SVG đúng vị trí
@@ -1303,21 +1317,56 @@ function updateAgvDisplay(states) {
         }
 
         // --- Vẽ đường đi dự kiến (Paths) ---
-        if (dynamicPathSvg && state.danh_sach_toa_do_duong_di && state.danh_sach_toa_do_duong_di.length >= 2) {
+        if (dynamicPathSvg && state.danh_sach_duong_di && state.danh_sach_duong_di.length >= 2) {
+            const pathElem = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            let d = "";
+            let segmentsDrawn = 0;
+
+            for (let i = 0; i < state.danh_sach_duong_di.length - 1; i++) {
+                const sName = state.danh_sach_duong_di[i];
+                const eName = state.danh_sach_duong_di[i+1];
+                
+                const sPt = allGraphPoints.find(p => p.name === sName);
+                const ePt = allGraphPoints.find(p => p.name === eName);
+                if (!sPt || !ePt) continue;
+
+                if (segmentsDrawn === 0) d += `M ${sPt.x} ${sPt.y} `;
+                segmentsDrawn++;
+
+                // Tìm cạnh trong sơ đồ để kiểm tra loại đường
+                const edge = allGraphPaths.find(p => 
+                    (p.start_node === sName && p.end_node === eName) ||
+                    (p.start_node === eName && p.end_node === sName)
+                );
+
+                if (edge && edge.type === 'curve' && edge.control) {
+                    d += `Q ${edge.control.x} ${edge.control.y} ${ePt.x} ${ePt.y} `;
+                } else {
+                    d += `L ${ePt.x} ${ePt.y} `;
+                }
+            }
+            
+            if (segmentsDrawn > 0) {
+                pathElem.setAttribute('d', d);
+                pathElem.setAttribute('fill', 'none');
+                pathElem.setAttribute('stroke', color);
+                pathElem.setAttribute('stroke-width', '5');
+                pathElem.setAttribute('stroke-opacity', '0.4');
+                pathElem.setAttribute('stroke-linecap', 'round');
+                pathElem.setAttribute('stroke-linejoin', 'round');
+                dynamicPathSvg.appendChild(pathElem);
+            }
+        } else if (dynamicPathSvg && state.danh_sach_toa_do_duong_di && state.danh_sach_toa_do_duong_di.length >= 2) {
+            // Fallback nếu không có danh sách tên điểm
             const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-            
-            // Chuyển đổi mảng tọa độ [[x,y], [x,y]] thành chuỗi "x,y x,y" cho polyline
             const pointsAttr = state.danh_sach_toa_do_duong_di.map(p => `${p[0]},${p[1]}`).join(' ');
-            
             polyline.setAttribute('points', pointsAttr);
             polyline.setAttribute('fill', 'none');
             polyline.setAttribute('stroke', color);
-            polyline.setAttribute('stroke-width', '5'); // Đường đi dày hơn một chút để dễ nhìn
-            polyline.setAttribute('stroke-opacity', '0.4'); // Độ trong suốt để nhìn thấy bản đồ bên dưới
+            polyline.setAttribute('stroke-width', '5');
+            polyline.setAttribute('stroke-opacity', '0.4');
             polyline.setAttribute('stroke-linecap', 'round');
             polyline.setAttribute('stroke-linejoin', 'round');
-            // polyline.setAttribute('stroke-dasharray', '10, 5'); // Có thể thêm nét đứt nếu muốn
-            
             dynamicPathSvg.appendChild(polyline);
         }
 

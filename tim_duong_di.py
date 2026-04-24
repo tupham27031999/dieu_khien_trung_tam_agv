@@ -38,7 +38,8 @@ def load_paths_route(filename, danh_sach_diem=None):
         # Validate if points for these paths exist in current danh_sach_diem
         valid_paths = {}
         for path_name, path_data in loaded_paths.items():
-            (p1_name, p2_name), direction = path_data
+            (p1_name, p2_name) = path_data[0]
+            direction = path_data[1]
             if p1_name in danh_sach_diem and p2_name in danh_sach_diem:
                 valid_paths[path_name] = [[p1_name, p2_name], direction]
             else:
@@ -54,7 +55,7 @@ def tao_graph(danh_sach_duong):
     for key, value in danh_sach_duong.items():
         (a, b), direction = value
 
-        if direction == "none":  # Đường 2 chiều
+        if direction == "none" or direction == "curve":  # Đường 2 chiều
             graph.setdefault(a, []).append(b)
             graph.setdefault(b, []).append(a)
         else:

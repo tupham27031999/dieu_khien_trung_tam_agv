@@ -214,5 +214,23 @@
         "height": 30,
         "group": "tra_hang",
         "diem_lay_hang": "X1"
+    },
+    {
+        "x": 0.3714,
+        "y": 0.5178,
+        "name": "J01",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "E21"
+    },
+    {
+        "x": 0.3293721833306269,
+        "y": 0.5022890995344893,
+        "name": "I01",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "H010"
     }
 ]

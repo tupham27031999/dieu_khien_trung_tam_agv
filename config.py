@@ -93,7 +93,6 @@ class AGVConfig:
     if os.path.exists(path_danh_sach_diem):
         with open(path_danh_sach_diem, 'r', encoding='utf-8') as f:
             danh_sach_diem = json.load(f)
-    
 
     DANH_SACH_AGV = data_setting["DANH_SACH_AGV"]
     thong_tin_hien_thi = "agv1: idle, agv2: idle, agv3: idle, agv4: idle, agv5: idle, agv6: idle, agv7: idle"
@@ -154,7 +153,7 @@ class AGVConfig:
             "danh_sach_toa_do_duong_di": [], 
             "paths": [], 
             "stop": False, 
-            "toa_do": {"x": 0, "y": 0}, 
+            "toa_do": {"x": 0, "y": 0},
             "goc_agv": 0, 
             "di_chuyen_khong_hang": False, 
             "che_do_dieu_khien_truc_tiep": False, # Giá trị mặc định thực tế
@@ -208,7 +207,6 @@ class AGVConfig:
     _ips = data_setting.get("BASE_IP", [])
     for i in range(len(_ips)):
         AGV_ENDPOINTS[f"agv{i+1}"] = f"http://{_ips[i]}:{5001+i}/PC_sent_AGV"
-    print("AGV_ENDPOINTS", AGV_ENDPOINTS)
+    # print("AGV_ENDPOINTS", AGV_ENDPOINTS)
 
     danh_sach_ip_ket_noi = {} # Biến lưu IP kết nối: {"agv1": {"address": "ip:port", "last_seen": timestamp}}
-    

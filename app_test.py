@@ -616,13 +616,25 @@ def get_graph_data():
             with open(AGVConfig.path_danh_sach_duong, 'r', encoding='utf-8') as f:
                 data_paths = json.load(f)
                 for key, value in data_paths.items():
-                    # Kiểm tra định dạng đường: [["Start", "End"], "none"]
+                    # Kiểm tra định dạng đường mới: [["Start", "End"], "type", "ControlPoint" (nếu có)]
                     if isinstance(value, list) and len(value) >= 1 and isinstance(value[0], list) and len(value[0]) >= 2:
-                        start_node = value[0][0]
-                        end_node = value[0][1]
-                        # Chỉ thêm đường nếu cả 2 điểm đầu cuối đều tồn tại trong danh sách điểm
+                        nodes = value[0]
+                        start_node = nodes[0]
+                        end_node = nodes[1]
+                        path_type = value[1] if len(value) > 1 else "none"
+                        control_node = value[2] if len(value) > 2 else None
+
                         if start_node in points_map and end_node in points_map:
-                            paths_list.append({"start": points_map[start_node], "end": points_map[end_node]})
+                            path_item = {
+                                "start": points_map[start_node],
+                                "end": points_map[end_node],
+                                "type": path_type,
+                                "start_node": start_node,
+                                "end_node": end_node
+                            }
+                            if path_type == "curve" and control_node in points_map:
+                                path_item["control"] = points_map[control_node]
+                            paths_list.append(path_item)
         print("Danh sách đường đã đọc:", paths_list)
         return jsonify({'points': list(points_map.values()), 'paths': paths_list, 'dims': [w, h]})
     except Exception as e:
@@ -736,7 +748,10 @@ def icp_simulation_loop():
             fleet = FleetLogicRealTime(graph_manager, agv_ids, AGVConfig.diem_chiem_dung)
             # visualizer = AGVVisualizer(graph_manager, agv_ids)
         if fleet is not None:
-            vi_tri_hien_tai_agv1 = AGVConfig.AGV_STATES["agv1"]["vi_tri_hien_tai"]
+            if AGVConfig.AGV_STATES["agv1"]["diem_tiep_theo"] == "":
+                vi_tri_hien_tai_agv1 = AGVConfig.AGV_STATES["agv1"]["vi_tri_hien_tai"]
+            else:
+                vi_tri_hien_tai_agv1 = AGVConfig.AGV_STATES["agv1"]["diem_tiep_theo"]
             # vi_tri_hien_tai_agv2 = AGVConfig.AGV_STATES["agv2"]["vi_tri_hien_tai"]
             # vi_tri_hien_tai_agv1 = "H05"
             vi_tri_hien_tai_agv2 = ""
