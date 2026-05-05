@@ -14,6 +14,7 @@ PATH_PATHS_DIR = remove.tao_folder(PATH_PHAN_MEM + "/data_input_output/path_list
 
 class AGVConfig_2:
     danh_sach_diem = None
+    danh_sach_diem_mm = None
     danh_sach_duong = None
     graph = None
 

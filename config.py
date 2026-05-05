@@ -120,57 +120,82 @@ class AGVConfig:
             with open(path_markers, 'r', encoding='utf-8') as f:
                 _markers_data = json.load(f)
                 for _m in _markers_data:
-                    _group = _m.get("group")
+                    # Lấy danh sách groups (mới) hoặc group đơn lẻ (cũ)
+                    _groups = _m.get("groups", [_m.get("group")])
                     _name = _m.get("name")
                     _point = _m.get("diem_lay_hang", "")
-                    if _group and _name:
-                        if _group not in BAN_DO_KE:
-                            BAN_DO_KE[_group] = []
-                        BAN_DO_KE[_group].append([_name, _point])
+                    if _groups and _name:
+                        for _g in _groups:
+                            if not _g: continue
+                            if _g not in BAN_DO_KE:
+                                BAN_DO_KE[_g] = []
+                            BAN_DO_KE[_g].append([_name, _point])
         except Exception as e:
             print(f"Lỗi khi load BAN_DO_KE từ file: {e}")
     print(BAN_DO_KE)
     # các giá hàng có thể chọn sẽ là các key của BAN_DO_KE
     cac_gia_hang = {}
     for key in BAN_DO_KE.keys():
-        cac_gia_hang[key] = [item[0] for item in BAN_DO_KE[key]]  # Lấy tên giá hàng từ cấu trúc BAN_DO_KE
+        cac_gia_hang[key] = [item[0] for item in BAN_DO_KE[key]] # Lấy tên giá hàng từ cấu trúc BAN_DO_KE
     # print("CÁC GIÁ HÀNG CÓ THỂ CHỌN:", cac_gia_hang)
     # {'A': [], 'B': ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B09', 'B10', 'B11', 'B12'], 'C': [
-    lua_chon_yeu_cau = {"chon_gia_hang": {"ten_hien_thi": "Chọn giá hàng", "loai": "select", "value": "None", "options": CAC_LOAI_KE},
-                        "di_chuyen_khong_hang": {"ten_hien_thi": "Di chuyển không hàng", "loai": "on/off", "value": "off", "options": None},
+    lua_chon_yeu_cau = {"chon_gia_hang": {"ten_hien_thi": "Chọn giá hàng", "loai": "select", "value": "None", "options": CAC_LOAI_KE}, # Giữ lại để hiển thị trên UI
+                        # "di_chuyen_khong_hang": {"ten_hien_thi": "Di chuyển không hàng", "loai": "on/off", "value": "off", "options": None}, # Đã loại bỏ
                         "che_do_dieu_khien_truc_tiep": {"ten_hien_thi": "Chế độ điều khiển trực tiếp", "loai": "on/off", "value": "off", "options": None},}
 
-    # Di chuyển AGV_STATES lên trên để thong_tin_da_chon có thể tham chiếu giá trị mặc định
     AGV_STATES = {
         agv: {
-            "vi_tri_hien_tai": "", 
-            "diem_tiep_theo": "", 
-            "dich_den": "", 
-            "trang_thai_agv_gui": "idle", 
-            "trang_thai_gui_agv": "idle", 
-            "message": "Khởi tạo", 
-            "danh_sach_duong_di": [], 
-            "danh_sach_toa_do_duong_di": [], 
-            "paths": [], 
-            "stop": False, 
-            "toa_do": {"x": 0, "y": 0},
-            "goc_agv": 0, 
-            "di_chuyen_khong_hang": False, 
-            "che_do_dieu_khien_truc_tiep": False, # Giá trị mặc định thực tế
-            "da_den_dich": False
+            "thong_tin_agv": {
+                                "diem_vua_di_qua": "",
+                                "diem_tiep_theo": "",
+                                "diem_cuoi": "",
+                                "toa_do": {"x": 0, "y": 0},
+                                "trang_thai_nang_ha": "ha",
+                                "goc_agv": 0,
+                                "message": "None",
+                                "danh_sach_duong_di": [],
+                                "da_den_dich": 0,
+                                "stop": False
+                            },
+            "dieu_khien_agv": {
+                                "diem_cuoi": "",
+                                "yeu_cau_gui_agv": "",
+                                "danh_sach_duong_di": [],
+                                "stop": False
+                            }
         } for agv in DANH_SACH_AGV
     }
+    che_do_dieu_khien_truc_tiep = {agv: False for agv in DANH_SACH_AGV} # Biến riêng để lưu trạng thái điều khiển trực tiếp của từng AGV, tách biệt khỏi AGV_STATES để dễ quản lý
+
+
+
+
+    # AGV_STATES = {
+    #     agv: {
+    #         "diem_vua_di_qua": "", 
+    #         "diem_tiep_theo": "", 
+    #         "diem_cuoi": "", 
+    #         "trang_thai_nang_ha": "", 
+    #         "yeu_cau_gui_agv": "", 
+    #         "message": "Khởi tạo", 
+    #         "danh_sach_duong_di": [], 
+    #         "danh_sach_toa_do_duong_di": [], 
+    #         "paths": [], 
+    #         "stop": False, 
+    #         "toa_do": {"x": 0, "y": 0}, 
+    #         "goc_agv": 0, 
+    #         "di_chuyen_khong_hang": False, 
+    #         "che_do_dieu_khien_truc_tiep": False, # Giá trị mặc định thực tế
+    #         "da_den_diem_cuoi": False
+    #     } for agv in DANH_SACH_AGV
+    # }
 
     # thông tin đã chọn theo từng agv
     thong_tin_da_chon = {}
     for agv in DANH_SACH_AGV:
         thong_tin_da_chon[agv] = {key: value["value"] for key, value in lua_chon_yeu_cau.items()}
-        thong_tin_da_chon[agv]["danh_sach_ke_da_chon"] = [] # Thêm biến lưu danh sách các giá (B01, C02...) đã chọn
-        
-        # Cập nhật mặc định theo biến che_do_dieu_khien_truc_tiep của AGV_STATES tương ứng
-        # Nếu AGV_STATES là False thì hiển thị "off", nếu True thì hiển thị "on"
-        thong_tin_da_chon[agv]["che_do_dieu_khien_truc_tiep"] = "on" if AGV_STATES[agv]["che_do_dieu_khien_truc_tiep"] else "off"
-
+        thong_tin_da_chon[agv]["danh_sach_ke_da_chon"] = [] # Thêm biến lưu danh sách các giá (B01, C02...) đã chọn        
+    
     trang_thai_gui = {agv: False for agv in DANH_SACH_AGV} # Biến kiểm soát việc đã gửi lệnh hay chưa
     trang_thai_hoan_thanh = {agv: False for agv in DANH_SACH_AGV} # Biến giả lập tín hiệu hoàn thành
     
@@ -178,8 +203,8 @@ class AGVConfig:
     chi_so_hang_hien_tai = {agv: 0 for agv in DANH_SACH_AGV}
     # Biến đặc biệt lưu giá trị hàng hiện tại (ví dụ: "B01") dựa trên chỉ số index
     gia_tri_hang_hien_tai = {agv: "" for agv in DANH_SACH_AGV}
-    # đích đến sẽ gửi cho agv
-    dich_den_gui_agv = {agv: "" for agv in DANH_SACH_AGV}
+    # điểm cuối sẽ gửi cho agv
+    diem_cuoi_gui_agv = {agv: "" for agv in DANH_SACH_AGV}
 
     # Cấu hình hiển thị bản đồ
     hien_thi_diem = True  # Mặc định hiển thị điểm

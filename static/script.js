@@ -1242,8 +1242,8 @@ function updateAgvDisplay(states) {
     }
 
     Object.entries(states).forEach(([id, state]) => {
-        const coords = state.toa_do;
-        const angle = state.goc_agv || 0;
+        const coords = state.thong_tin_agv.toa_do;
+        const angle = state.thong_tin_agv.goc_agv || 0;
         const rgb = AGV_COLORS[id] || [52, 152, 219];
         const color = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
         const contrastColor = getContrastColor(rgb);
@@ -1317,14 +1317,14 @@ function updateAgvDisplay(states) {
         }
 
         // --- Vẽ đường đi dự kiến (Paths) ---
-        if (dynamicPathSvg && state.danh_sach_duong_di && state.danh_sach_duong_di.length >= 2) {
+        if (dynamicPathSvg && state.thong_tin_agv.danh_sach_duong_di && state.thong_tin_agv.danh_sach_duong_di.length >= 2) {
             const pathElem = document.createElementNS("http://www.w3.org/2000/svg", "path");
             let d = "";
             let segmentsDrawn = 0;
 
-            for (let i = 0; i < state.danh_sach_duong_di.length - 1; i++) {
-                const sName = state.danh_sach_duong_di[i];
-                const eName = state.danh_sach_duong_di[i+1];
+            for (let i = 0; i < state.thong_tin_agv.danh_sach_duong_di.length - 1; i++) {
+                const sName = state.thong_tin_agv.danh_sach_duong_di[i];
+                const eName = state.thong_tin_agv.danh_sach_duong_di[i+1];
                 
                 const sPt = allGraphPoints.find(p => p.name === sName);
                 const ePt = allGraphPoints.find(p => p.name === eName);

@@ -12,11 +12,12 @@ from datetime import datetime
 import numpy as np
 import time
 from urllib.parse import urlparse
-import tim_duong_di
+import mo_phong_agv.tim_duong_di as tim_duong_di
 import threading
 from mo_phong_agv.fleet_logic_thuc_te import FleetLogicRealTime
 from mo_phong_agv.simulation import AGVVisualizer
 from mo_phong_agv.graph_manager import GraphManager
+import cbs
 
 
 def get_local_ip():
@@ -81,14 +82,6 @@ app = Flask(__name__)
 app.config.from_object(AGVConfig)
 
 
-def convert_danh_sach_duong_di(p_actual):
-    # AGVConfig.danh_sach_diem
-    danh_sach_duong_di = []
-    for i in range(len(p_actual)):
-        x = AGVConfig.danh_sach_diem[p_actual[i]][0]
-        y = AGVConfig.danh_sach_diem[p_actual[i]][1]
-        danh_sach_duong_di.append([x, y])
-    return danh_sach_duong_di
 
 def update_agv_states():
     """
@@ -101,60 +94,30 @@ def update_agv_states():
         user_config = AGVConfig.thong_tin_da_chon.get(agv, {})
         if (user_config.get("che_do_dieu_khien_truc_tiep") == "on") == True:
             # continue # Nếu chế độ điều khiển trực tiếp tắt, bỏ qua cập nhật trạng thái cho AGV này
-            # 1. Cập nhật đích đến
-            AGVConfig.AGV_STATES[agv]["dich_den"] = AGVConfig.dich_den_gui_agv.get(agv, "")
+            # 1. Cập nhật điểm cuối (đích đến)
+            AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["diem_cuoi"] = AGVConfig.diem_cuoi_gui_agv.get(agv, "")
             
             # 2. Cập nhật trạng thái gửi AGV (logic: tra_hang/lay_hang -> giữ nguyên, khác -> nang)
             chon_gia = user_config.get("chon_gia_hang", "")
-            if chon_gia == "tra_hang":
-                AGVConfig.AGV_STATES[agv]["trang_thai_gui_agv"] = "tra_hang"
-            elif chon_gia == "lay_hang":
-                AGVConfig.AGV_STATES[agv]["trang_thai_gui_agv"] = "lay_hang"
+            if chon_gia == "lay_xe_linh_kien":
+                AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["yeu_cau_gui_agv"] = "lay_xe_linh_kien"
+            elif chon_gia == "tra_xe_linh_kien":
+                AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["yeu_cau_gui_agv"] = "tra_xe_linh_kien"
             else:
-                AGVConfig.AGV_STATES[agv]["trang_thai_gui_agv"] = "nang"
-                
+                AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["yeu_cau_gui_agv"] = "lay_linh_kien"
             # 3. Cập nhật đường đi (Paths) - Tạm thời để rỗng
             # AGVConfig.AGV_STATES[agv]["paths"] = []
-            
             # 4. Cập nhật các cờ Boolean (Chuyển đổi từ 'on'/'off' sang True/False)
-            AGVConfig.AGV_STATES[agv]["di_chuyen_khong_hang"] = (user_config.get("di_chuyen_khong_hang") == "on")
-            AGVConfig.AGV_STATES[agv]["che_do_dieu_khien_truc_tiep"] = (user_config.get("che_do_dieu_khien_truc_tiep") == "on")
-
-        # if agv == "agv1": # Chỉ in trạng thái của agv1 để kiểm tra (bạn có thể thay đổi hoặc bỏ qua)
-        #     print(AGVConfig.AGV_STATES[agv]) # In trạng thái AGV sau khi cập nhật để kiểm tra
-        # chuyển đổi danh sách đường đi sang tọa độ đường đi
-        # AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(AGVConfig.AGV_STATES[agv]["danh_sach_duong_di"])
-        # test
-        # if agv == "agv1":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["G35", "G34", "W3"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 30
-        # elif agv == "agv2":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P53", "P50"])
+            # AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["di_chuyen_khong_hang"] đã bị loại bỏ
+            AGVConfig.che_do_dieu_khien_truc_tiep[agv] = (user_config.get("che_do_dieu_khien_truc_tiep") == "on")
+        else:
+            AGVConfig.che_do_dieu_khien_truc_tiep[agv] = False
             
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 40
-        # elif agv == "agv3":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P43", "P40"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 50
-        # elif agv == "agv4":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P48", "G35", "G36"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 60
-        # elif agv == "agv5":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P19", "P18", "P17"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 70
-        # elif agv == "agv6":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P13", "P12", "P11"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 80
-        # elif agv == "agv7":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P76", "G28", "W1"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 90
-        # AGVConfig.AGV_STATES[agv]["toa_do"] = {"x": AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"][0][0], "y": AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"][0][1]}
-
-
-
 
 
     if CHE_DO_SENT_DATA_AGV:
         data_to_send_all = AGVConfig.AGV_STATES
+        # print("data_to_send_all", data_to_send_all)
         # Gửi yêu cầu đến từng AGV
         for agv_id, endpoint in AGVConfig.AGV_ENDPOINTS.items():
             try:
@@ -164,20 +127,20 @@ def update_agv_states():
                     response_data = response.json()
                     data_from_agv = response_data.get("data")
                     # Chỉ cập nhật nếu có 'data' và có key của agv_id tương ứng
-                    if data_from_agv and agv_id in data_from_agv:
-                        received_state = data_from_agv[agv_id]
-                        if received_state:
-                            # Cập nhật tất cả thông tin từ AGV
-                            AGVConfig.AGV_STATES[agv_id].update(received_state)
-                            
-                            # Cập nhật thông tin IP kết nối và thời gian
-                            parsed = urlparse(endpoint)
-                            AGVConfig.danh_sach_ip_ket_noi[agv_id] = {
-                                "address": parsed.netloc,
-                                "last_seen": time.time()
-                            }
+                    # if data_from_agv and agv_id in data_from_agv:
+                    #     received_state = data_from_agv[agv_id]
+                    if data_from_agv:
+                        # Cập nhật tất cả thông tin từ AGV
+                        AGVConfig.AGV_STATES[agv_id]["thong_tin_agv"].update(data_from_agv)
+                        
+                        # Cập nhật thông tin IP kết nối và thời gian
+                        parsed = urlparse(endpoint)
+                        AGVConfig.danh_sach_ip_ket_noi[agv_id] = {
+                            "address": parsed.netloc,
+                            "last_seen": time.time()
+                        }
 
-                    print(f"Nhận phản hồi từ {agv_id}: {AGVConfig.AGV_STATES[agv_id]}")
+                        print(f"Nhận phản hồi từ {agv_id}: {AGVConfig.AGV_STATES[agv_id]}")
                 else:
                     print(f"Lỗi khi giao tiếp với {agv_id}: {response.status_code}")
             except requests.exceptions.RequestException as e:
@@ -188,16 +151,14 @@ def update_agv_states():
             # 1. Chuẩn bị dữ liệu gửi đi (dạng gui_dieu_khien_trung_tam)
             payload_trung_tam = []
             for agv_id in AGVConfig.DANH_SACH_AGV:
-                try:
-                    agv_num = int(agv_id.replace("agv", ""))
-                except:
-                    agv_num = 0
-                payload_trung_tam.append({
-                    "AGV_ID": agv_num,
-                    "Trang_thai": AGVConfig.AGV_STATES[agv_id]["trang_thai_gui_agv"],
-                    "Vi_tri_hien_tai": AGVConfig.AGV_STATES[agv_id]["vi_tri_hien_tai"],
-                    "mgs": AGVConfig.AGV_STATES[agv_id]["message"]
-                })
+                agv_num = int(agv_id.replace("agv", ""))
+                if AGVConfig.che_do_dieu_khien_truc_tiep[agv_id] == False:
+                    payload_trung_tam.append({
+                        "AGV_ID": agv_num,
+                        "Trang_thai": "",
+                        "Vi_tri_hien_tai": AGVConfig.AGV_STATES[agv_id]["thong_tin_agv"]["diem_tiep_theo"],
+                        "mgs": AGVConfig.AGV_STATES[agv_id]["thong_tin_agv"]["message"]
+                    })
             # ví dụ
             payload_trung_tam = [{  "AGV_ID": 1,
                                     "Trang_thai": "PICKING",
@@ -227,22 +188,22 @@ def update_agv_states():
                     for cmd in data_tt["commands"]:
                         agv_id_num = cmd.get("agV_ID")
                         agv_key = f"agv{agv_id_num}"
-                        dich_den = cmd.get("dich_den")
+                        diem_cuoi_moi = cmd.get("dich_den")
 
-                        dich_den_new = None
+                        diem_cuoi_new = None
                         for _, point_data in AGVConfig.BAN_DO_KE.items():
                             for item in point_data:
                                 # item cấu trúc ["TenKe", "TenDiem"]
-                                if item[0] == dich_den:
-                                    dich_den_new = item[1]
+                                if item[0] == diem_cuoi_moi:
+                                    diem_cuoi_new = item[1]
                                     break
-                            if dich_den_new:
+                            if diem_cuoi_new:
                                 break
-                        print("dich_den_new", dich_den_new)
+                        print("diem_cuoi_new", diem_cuoi_new)
                         if agv_key in AGVConfig.AGV_STATES:
-                            # Cập nhật đích đến nếu có
-                            if dich_den_new:
-                                AGVConfig.AGV_STATES[agv_key]["dich_den"] = dich_den_new
+                            # Cập nhật điểm cuối nếu có
+                            if diem_cuoi_new:
+                                AGVConfig.AGV_STATES[agv_key]["dieu_khien_agv"]["diem_cuoi"] = diem_cuoi_new
         except Exception as e:
             print(f"Lỗi kết nối API trung tâm: {e}")
 
@@ -300,28 +261,28 @@ def send_request():
         if danh_sach and len(danh_sach) > 0:
             AGVConfig.gia_tri_hang_hien_tai[agv_name] = danh_sach[0]
             
-            # Logic tìm điểm đích cho phần tử đầu tiên (Index 0) ngay khi gửi
-            dich_den = ""
+            # Logic tìm điểm cuối cho phần tử đầu tiên (Index 0) ngay khi gửi
+            diem_cuoi = ""
             for _, point_data in AGVConfig.BAN_DO_KE.items():
                 for item in point_data:
                     # item cấu trúc ["TenKe", "TenDiem"]
                     if item[0] == danh_sach[0]:
-                        dich_den = item[1]
+                        diem_cuoi = item[1]
                         break
-                if dich_den != "":
+                if diem_cuoi != "":
                     break
-            AGVConfig.dich_den_gui_agv[agv_name] = dich_den
+            AGVConfig.diem_cuoi_gui_agv[agv_name] = diem_cuoi
             
         else:
             AGVConfig.gia_tri_hang_hien_tai[agv_name] = ""
-            AGVConfig.dich_den_gui_agv[agv_name] = ""
+            AGVConfig.diem_cuoi_gui_agv[agv_name] = ""
             
         update_agv_states() # Cập nhật AGV_STATES ngay sau khi thay đổi cấu hình
         return jsonify({'status': 'success', 'message': 'Đã gửi yêu cầu'})
     return jsonify({'status': 'error', 'message': 'Dữ liệu không hợp lệ'}), 400
 
 @app.route('/api/map_image')
-def map_image(): # This function is duplicated, consider removing one instance.
+def map_image(): # This function is duplicated, consider removing one instance. 
     """
     API trả về ảnh bản đồ trực tiếp từ bộ nhớ (numpy array -> png).
     Không cần lưu file ra đĩa.
@@ -698,7 +659,8 @@ def send_complete():
                     break
 
             if dich_den != "":
-                AGVConfig.dich_den_gui_agv[agv_name] = dich_den
+                AGVConfig.diem_cuoi_gui_agv[agv_name] = dich_den
+
 
             print(f"{agv_name} hoàn thành. Chuyển sang {danh_sach[tiep_theo]} (index {tiep_theo})")
 
@@ -712,9 +674,14 @@ def send_complete():
 
 
 
-
-
-
+# {'W3': ['X3', 'W4', 'H213'], 'X3': ['W3'], 'W4': ['W3', 'X4'], 'X4': ['W4'], 'H213': ['W3', 'H210', 'G75'], 'G21': ['G31', 'G11', 'C1'], 'G31': ['G21', 'G41', 'C1'], 'G41': ['G31', 'G51'], 
+#  'G12': ['G22', 'H04', 'H14'], 'G22': ['G12', 'G32'], 'G32': ['G22', 'G42'], 'G42': ['G32', 'G52'], 'G52': ['G42', 'G62'], 'G53': ['G43', 'G63'], 'G43': ['G53', 'G33'], 'G33': ['G43', 'G23'], 
+#  'G23': ['G33', 'G13'], 'G13': ['G23', 'H17'], 'H17': ['G13', 'H07', 'X2', 'X1'], 'H110': ['G14', 'H010', 'X2', 'C2'], 'G14': ['H110', 'G24'], 'G24': ['G14', 'G44'], 'G44': ['G24', 'G54'], 
+#  'G54': ['G44', 'G64'], 'G55': ['G45', 'G65'], 'G45': ['G55', 'G35'], 'G35': ['G45', 'G25', 'C2'], 'G25': ['G35', 'G15', 'C2'], 'H21': ['H24', 'G71'], 'H24': ['H21', 'H27', 'G72'], 
+#  'H27': ['H24', 'H210', 'G73'], 'H210': ['H27', 'H213', 'G74'], 'H07': ['H17', 'H05', 'H010'], 'H010': ['H110', 'H07', 'C2'], 'X2': ['H17', 'H110', 'W2'], 'W2': ['X2', 'W1'], 
+#  'H05': ['H07', 'H04', 'W1'], 'H04': ['H05', 'G12', 'C1'], 'H14': ['G12', 'X1', 'C1'], 'W1': ['H05', 'X1', 'W2'], 'X1': ['W1', 'H14', 'H17'], 'G11': ['G21', 'C1'], 'G51': ['G41', 'G61'], 
+#  'G61': ['G51', 'G71'], 'G71': ['G61', 'H21'], 'G62': ['G52', 'G72'], 'G72': ['H24', 'G62'], 'G63': ['G53', 'G73'], 'G73': ['G63', 'H27'], 'G64': ['G54', 'G74'], 'G74': ['G64', 'H210'], 
+#  'G65': ['G55', 'G75'], 'G75': ['G65', 'H213'], 'G15': ['G25', 'C2'], 'C1': ['H14', 'H04', 'G11', 'G21', 'G31'], 'C2': ['H110', 'H010', 'G25', 'G15', 'G35']}
 
 # 1. Create GraphManager and populate it from loaded data
 graph_manager = GraphManager()
@@ -728,103 +695,229 @@ def icp_simulation_loop():
         if test_icp_simulation_loop == True:
             if AGVConfig_2.danh_sach_diem is None:
                 AGVConfig_2.danh_sach_diem = tim_duong_di.load_points_route(AGVConfig.ten_danh_sach_diem)
-                print("Danh sách điểm đã nạp:", AGVConfig_2.danh_sach_diem)
+
+                AGVConfig_2.danh_sach_diem_mm = AGVConfig_2.danh_sach_diem.copy()
+                map_size_mm=100000.0                             # Kích thước tổng của bản đồ (mm).
+                resolution_mm= 20                             # Độ phân giải của bản đồ (mm/pixel).
+                # occupancy grid (pixels)
+                pixels = int(np.ceil(map_size_mm / resolution_mm))
+                center_px = (pixels // 2, pixels // 2)
+                # Chuyển đổi toàn bộ danh_sach_diem (bao gồm cả các điểm control của curve) sang tọa độ mm
+                for name, val in AGVConfig_2.danh_sach_diem_mm.items():
+                    if isinstance(val, list) and len(val) >= 2:
+                        px, py = val[0], val[1]
+                        val[0] = (px - center_px[0]) * resolution_mm
+                        val[1] = (center_px[1] - py) * resolution_mm
+
+                print("Danh sách điểm đã nạp:", AGVConfig_2.danh_sach_diem_mm)
             if AGVConfig_2.danh_sach_duong is None:
                 AGVConfig_2.danh_sach_duong = tim_duong_di.load_paths_route(AGVConfig.ten_danh_sach_duong, AGVConfig_2.danh_sach_diem)
                 print("Danh sách đường đã nạp:", AGVConfig_2.danh_sach_duong)
-            if AGVConfig_2.graph is None:
-                AGVConfig_2.graph = tim_duong_di.tao_graph(AGVConfig_2.danh_sach_duong)
+            # if AGVConfig_2.graph is None:
+            #     # Xác định các điểm quan trọng không được phép gộp (ví dụ: các điểm đích từ BAN_DO_KE)
+            #     must_keep = set()
+            #     for shelf_list in AGVConfig.BAN_DO_KE.values():
+            #         for item in shelf_list:
+            #             must_keep.add(item[1]) # item[1] là tên điểm trong danh_sach_diem
+                
+            #     AGVConfig_2.graph = tim_duong_di.tao_graph_cai_tien(AGVConfig_2.danh_sach_duong, AGVConfig_2.danh_sach_diem, must_keep)
 
         # agv_ids = AGVConfig.DANH_SACH_AGV
-        agv_ids = ["agv1", "agv2", "agv3"]
-        # print(AGVConfig_2.graph)
-        if AGVConfig_2.danh_sach_diem is not None and AGVConfig_2.danh_sach_duong is not None and \
-                                                      AGVConfig_2.graph is not None and AGVConfig_2.setup_manager == False:
-            AGVConfig_2.setup_manager = True
-            
-            graph_manager.graph = AGVConfig_2.graph
-            graph_manager.positions = {name: (data[0], data[1]) for name, data in AGVConfig_2.danh_sach_diem.items()}
+        # data_agv = {"agv1": {"start": "G21", "goal": "G42"},
+        #             "agv2": {"start": "G22", "goal": "G41"},
+        #             "agv3": {"start": "G23", "goal": "G44"},
+        #             "agv4": {"start": "G24", "goal": "G53"},
+        #             "agv5": {"start": "G25", "goal": "G24"},
+        #             "agv6": {"start": "G74", "goal": "X3"},
+        #             "agv7": {"start": "G75", "goal": "G65"}
+        #             }
+        
+        # AGV_STATES = {
+        #                 agv: {
+        #                     "thong_tin_agv": {
+        #                                         "diem_vua_di_qua": "",
+        #                                         "diem_tiep_theo": "",
+        #                                         "diem_cuoi": "",
+        #                                         "toa_do": {"x": 0, "y": 0},
+        #                                         "trang_thai_nang_ha": "ha",
+        #                                         "goc_agv": 0,
+        #                                         "message": "None",
+        #                                         "danh_sach_duong_di": [],
+        #                                         "da_den_dich": 0,
+        #                                         "stop": False
+        #                                     },
+        #                     "dieu_khien_agv": {
+        #                                         "diem_cuoi": "",
+        #                                         "yeu_cau_gui_agv": "",
+        #                                         "danh_sach_duong_di": [],
+        #                                         "stop": False
+        #                                     }
+        #                 } for agv in DANH_SACH_AGV
+        #             }
 
-            fleet = FleetLogicRealTime(graph_manager, agv_ids, AGVConfig.diem_chiem_dung)
-            # visualizer = AGVVisualizer(graph_manager, agv_ids)
-        if fleet is not None:
-            if AGVConfig.AGV_STATES["agv1"]["diem_tiep_theo"] == "":
-                vi_tri_hien_tai_agv1 = AGVConfig.AGV_STATES["agv1"]["vi_tri_hien_tai"]
+        id_agvs = ["agv1", "agv2", "agv3", "agv4", "agv5", "agv6", "agv7"]
+        data_agv = {}
+        for agv in id_agvs:
+            if agv not in data_agv:
+                data_agv[agv] = {}
+            if AGVConfig.AGV_STATES[agv]["thong_tin_agv"]["diem_tiep_theo"] == "":
+                data_agv[agv]["start"] = AGVConfig.AGV_STATES[agv]["thong_tin_agv"]["diem_vua_di_qua"]
             else:
-                vi_tri_hien_tai_agv1 = AGVConfig.AGV_STATES["agv1"]["diem_tiep_theo"]
-            # vi_tri_hien_tai_agv2 = AGVConfig.AGV_STATES["agv2"]["vi_tri_hien_tai"]
-            # vi_tri_hien_tai_agv1 = "H05"
-            vi_tri_hien_tai_agv2 = ""
-            vi_tri_hien_tai_agv3 = ""
-            current_telemetry = [
-                {"agv_id": "agv1", "current_node": vi_tri_hien_tai_agv1, "status": "IDLE"},
-                {"agv_id": "agv2", "current_node": vi_tri_hien_tai_agv2, "status": "IDLE"},
-                {"agv_id": "agv3", "current_node": vi_tri_hien_tai_agv3, "status": "IDLE"},
-                # {"agv_id": "agv4", "current_node": vi_tri_hien_tai_agv4, "status": "IDLE"},
-                # {"agv_id": "agv5", "current_node": vi_tri_hien_tai_agv5, "status": "IDLE"},
-                # {"agv_id": "agv6", "current_node": vi_tri_hien_tai_agv6, "status": "IDLE"},
-                # {"agv_id": "agv7", "current_node": vi_tri_hien_tai_agv7, "status": "IDLE"},
-            ]
-            # print(AGVConfig.AGV_STATES)
-            dich_den_agv1 = AGVConfig.AGV_STATES["agv1"]["dich_den"]
-            # dich_den_agv2 = AGVConfig.AGV_STATES["agv2"]["dich_den"]
-            # dich_den_agv1 = "H16"
-            dich_den_agv2 = ""
-            dich_den_agv3 = ""
-            initial_jobs = [
-                {"agv_id": "agv1", "goal": dich_den_agv1},
-                {"agv_id": "agv2", "goal": dich_den_agv2},
-                {"agv_id": "agv3", "goal": dich_den_agv3},
-                # {"agv_id": "agv4", "goal": "B1"},
-                # {"agv_id": "agv5", "goal": "E1"},
-                # {"agv_id": "agv6", "goal": "E3"},
-                # {"agv_id": "agv7", "goal": "E4"},
-            ]
+                data_agv[agv]["start"] = AGVConfig.AGV_STATES[agv]["thong_tin_agv"]["diem_tiep_theo"]
+            data_agv[agv]["goal"] = AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["diem_cuoi"]
 
-            input_data = {"telemetry": current_telemetry, "jobs": initial_jobs}
-            # print("\nINPUT CHO VÒNG LẶP:", input_data)
+        
+        # test với số liệu
+        # data_agv = {"agv1": {"start": "G21", "goal": ""},
+        #             "agv2": {"start": "G22", "goal": "G41"},
+        #             "agv3": {"start": "G23", "goal": "G44"},
+        #             "agv4": {"start": "G24", "goal": "G53"},
+        #             "agv5": {"start": "G25", "goal": "G24"},
+        #             "agv6": {"start": "G74", "goal": "G74"},
+        #             "agv7": {"start": "G75", "goal": "G65"}
+        #             }
 
-            commands = fleet.run_cycle(input_data)
+        # print("data_agv", data_agv)
+        output_cbs = cbs.main(data_agv, AGVConfig_2.danh_sach_diem_mm, AGVConfig_2.danh_sach_duong)
+        # print("data cbs \n", output_cbs,"\n","data agv \n",data_agv)
+        # {'schedule': {  'agv3': [{'t': 0, 'x': -13460, 'y': 2480, 'd': 0, 'name': 'G23'}, 
+        #                        {'t': 2, 'x': -16100, 'y': 2420, 'd': np.float64(-177.99044618697886), 'name': 'H17'}, 
+        #                        {'t': 4, 'x': -16000, 'y': -280, 'd': np.float64(-86.47854662307776), 'name': 'H110'}, 
+        #                        {'t': 8, 'x': -8460, 'y': -160, 'd': np.float64(0.8363753254224154), 'name': 'G44'}], 
+        #                 'agv1': [{'t': 0, 'x': -13600, 'y': 7940, 'd': 0, 'name': 'G21'}, 
+        #                        {'t': 1, 'x': -13300, 'y': 7940, 'd': np.float64(0.0), 'name': 'C1'}, 
+        #                        {'t': 2, 'x': -16140, 'y': 5120, 'd': np.float64(-135.2024577422182), 'name': 'H14'}, 
+        #                        {'t': 6, 'x': -9040, 'y': 5320, 'd': np.float64(1.893385845746274), 'name': 'G42'}], 
+        #                 'agv2': [{'t': 0, 'x': -13540, 'y': 5200, 'd': 0, 'name': 'G22'}, 
+        #                          {'t': 6, 'x': 340, 'y': 5560, 'd': np.float64(1.4688007143858246), 'name': 'H24'}, 
+        #                          {'t': 7, 'x': 280, 'y': 8300, 'd': np.float64(91.25445162268154), 'name': 'H21'}, 
+        #                          {'t': 11, 'x': -9220, 'y': 8060, 'd': np.float64(-178.5436413656603), 'name': 'G41'}]}, 
+        #   'cost': 12}
+        if output_cbs is not None:
+            schedule = output_cbs["schedule"]
 
-            paths_agv = []
-            stop = False
-            for agv_id in agv_ids:
-                cmd = commands.get(agv_id, {})
-                current_agv_data = fleet.agvs[agv_id]
-                
-                # Mặc định lấy vị trí hiện tại
-                current_node = current_agv_data["current_node"]
-                
-                if cmd.get("command") == "DI_CHUYEN":
-                    path = cmd.get("path", [])
-                    paths_agv = path
-                    print(f"DEBUG: AGV {agv_id} received DI_CHUYEN command with path: {path}")
+            cost = output_cbs["cost"]
 
-                    if len(path) > 0:
-                        current_node = path[1] if len(path) > 1 else path[0]
-                        # Nếu node vừa tới là đích của path hiện tại
-                        if current_node == current_agv_data["path"][-1]:
-                            status = "da_den_dich"
-                            stop = True
-                            print(f"OUTPUT: {agv_id} DA_DEN_DICH {current_node}")
-                        else:
-                            status = "dang_di_chuyen"
-                    else:
-                        stop = True
-                        status = "tam_dung"
+            danh_sach_t = []
+            for agv_id in id_agvs:
+                if agv_id in schedule:
+                    if len(schedule[agv_id]) > 1:
+                        danh_sach_t.append(schedule[agv_id][1]["t"])
+            if len(danh_sach_t) == 0:
+                stt_t = -1
+            elif len(danh_sach_t) == 1:
+                stt_t = danh_sach_t[0]
+            else:
+                stt_t = min(danh_sach_t)
+
+
+            for agv_id in id_agvs:
+                path_agv = []
+                if agv_id in schedule:
+                    if len(schedule[agv_id]) == 1:
+                        path_agv = [schedule[agv_id][0]["name"]]
+                    elif len(schedule[agv_id]) > 1:
+                        if schedule[agv_id][1]["t"] == stt_t:
+                            path_agv = [schedule[agv_id][0]["name"], schedule[agv_id][1]["name"]]
+                print("-------", agv_id, path_agv)
+                AGVConfig.AGV_STATES[agv_id]["dieu_khien_agv"]["danh_sach_duong_di"] = path_agv
+                if len(path_agv) == 0:
+                    AGVConfig.AGV_STATES[agv_id]["dieu_khien_agv"]["stop"] = True
+                    print("schedule", schedule)
                 else:
-                    print(f"DEBUG: AGV {agv_id} stop")
-                    stop = True
-                    # KIỂM TRA TẠI ĐÂY: 
-                    # Nếu không có lệnh di chuyển nhưng node hiện tại trùng với đích cũ
-                    if current_agv_data["goal"] and current_node == current_agv_data["goal"]:
-                        status = "da_den_dich"
-                    elif cmd.get("command") == "TAM_DUNG":
-                        status = "tam_dung"
-                    else:
-                        status = "da_den_dich" if current_agv_data["path"] == [] else "dang_cho"
+                    AGVConfig.AGV_STATES[agv_id]["dieu_khien_agv"]["stop"] = False
+        # print(AGVConfig.AGV_STATES)
+        
+
+
+
+
+        # if AGVConfig_2.danh_sach_diem is not None and AGVConfig_2.danh_sach_duong is not None and AGVConfig_2.setup_manager == False:
+        #     AGVConfig_2.setup_manager = True
+            
+        #     graph_manager.graph = AGVConfig_2.graph
+        #     graph_manager.positions = {name: (data[0], data[1]) for name, data in AGVConfig_2.danh_sach_diem.items()}
+
+        #     fleet = FleetLogicRealTime(graph_manager, agv_ids, AGVConfig.diem_chiem_dung)
+        #     # visualizer = AGVVisualizer(graph_manager, agv_ids)
+        # if fleet is not None:
+        #     if AGVConfig.AGV_STATES["agv1"]["thong_tin_agv"]["diem_tiep_theo"] == "":
+        #         vi_tri_hien_tai_agv1 = AGVConfig.AGV_STATES["agv1"]["thong_tin_agv"]["diem_vua_di_qua"]
+        #     else:
+        #         vi_tri_hien_tai_agv1 = AGVConfig.AGV_STATES["agv1"]["thong_tin_agv"]["diem_tiep_theo"]
+        #     # vi_tri_hien_tai_agv2 = AGVConfig.AGV_STATES["agv2"]["thong_tin_agv"]["diem_vua_di_qua"]
+        #     # vi_tri_hien_tai_agv1 = "C1"
+        #     vi_tri_hien_tai_agv2 = ""
+        #     vi_tri_hien_tai_agv3 = ""
+        #     current_telemetry = [
+        #         {"agv_id": "agv1", "current_node": vi_tri_hien_tai_agv1, "status": "IDLE"},
+        #         {"agv_id": "agv2", "current_node": vi_tri_hien_tai_agv2, "status": "IDLE"},
+        #         {"agv_id": "agv3", "current_node": vi_tri_hien_tai_agv3, "status": "IDLE"},
+        #         # {"agv_id": "agv4", "current_node": vi_tri_hien_tai_agv4, "status": "IDLE"},
+        #         # {"agv_id": "agv5", "current_node": vi_tri_hien_tai_agv5, "status": "IDLE"},
+        #         # {"agv_id": "agv6", "current_node": vi_tri_hien_tai_agv6, "status": "IDLE"},
+        #         # {"agv_id": "agv7", "current_node": vi_tri_hien_tai_agv7, "status": "IDLE"},
+        #     ]
+        #     # print(AGVConfig.AGV_STATES)
+        #     dich_den_agv1 = AGVConfig.AGV_STATES["agv1"]["thong_tin_agv"]["diem_cuoi"]
+        #     # dich_den_agv2 = AGVConfig.AGV_STATES["agv2"]["thong_tin_agv"]["diem_cuoi"]
+        #     # dich_den_agv1 = "G42"
+        #     dich_den_agv2 = ""
+        #     dich_den_agv3 = ""
+        #     initial_jobs = [
+        #         {"agv_id": "agv1", "goal": dich_den_agv1},
+        #         {"agv_id": "agv2", "goal": dich_den_agv2},
+        #         {"agv_id": "agv3", "goal": dich_den_agv3},
+        #         # {"agv_id": "agv4", "goal": "B1"},
+        #         # {"agv_id": "agv5", "goal": "E1"},
+        #         # {"agv_id": "agv6", "goal": "E3"},
+        #         # {"agv_id": "agv7", "goal": "E4"},
+        #     ]
+
+        #     input_data = {"telemetry": current_telemetry, "jobs": initial_jobs}
+        #     # print("\nINPUT CHO VÒNG LẶP:", input_data)
+
+        #     commands = fleet.run_cycle(input_data)
+
+        #     paths_agv = []
+        #     stop = False
+        #     for agv_id in agv_ids:
+        #         cmd = commands.get(agv_id, {})
+        #         current_agv_data = fleet.agvs[agv_id]
                 
-                AGVConfig.AGV_STATES[agv_id]["paths"] = paths_agv
+        #         # Mặc định lấy vị trí hiện tại
+        #         current_node = current_agv_data["current_node"]
+                
+        #         if cmd.get("command") == "DI_CHUYEN":
+        #             path = cmd.get("path", [])
+        #             paths_agv = path
+        #             print(f"DEBUG: AGV {agv_id} received DI_CHUYEN command with path: {path}")
+
+        #             if len(path) > 0:
+        #                 current_node = path[1] if len(path) > 1 else path[0]
+        #                 # Nếu node vừa tới là đích của path hiện tại
+        #                 if current_node == current_agv_data["path"][-1]:
+        #                     status = "da_den_dich"
+        #                     stop = True
+        #                     print(f"OUTPUT: {agv_id} DA_DEN_DICH {current_node}")
+        #                 else:
+        #                     status = "dang_di_chuyen"
+        #             else:
+        #                 stop = True
+        #                 status = "tam_dung"
+        #         else:
+        #             print(f"DEBUG: AGV {agv_id} stop")
+        #             stop = True
+        #             # KIỂM TRA TẠI ĐÂY: 
+        #             # Nếu không có lệnh di chuyển nhưng node hiện tại trùng với đích cũ
+        #             if current_agv_data["goal"] and current_node == current_agv_data["goal"]:
+        #                 status = "da_den_dich"
+        #             elif cmd.get("command") == "TAM_DUNG":
+        #                 status = "tam_dung"
+        #             else:
+        #                 status = "da_den_dich" if current_agv_data["path"] == [] else "dang_cho"
+                
+        #         AGVConfig.AGV_STATES[agv_id]["dieu_khien_agv"]["danh_sach_duong_di"] = paths_agv
                 # AGVConfig.AGV_STATES[agv_id]["stop"] = stop
                 # new_telemetry.append({
                 #     "agv_id": agv_id, 

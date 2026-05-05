@@ -41,7 +41,7 @@ AGV_UPDATE_INTERVAL = 1.0  # Thời gian nghỉ giữa các lần gửi dữ li�
 CHE_DO_API_TRUNG_TAM = False # Biến ON/OFF chế độ giao tiếp API khác
 URL_API_TRUNG_TAM = "http://apbivnwb06:1332/api/AgvApi/update-status" # Thay đổi URL này thành API thực tế
 
-CHE_DO_SENT_DATA_AGV = False # Biến ON/OFF chế độ gửi dữ liệu đến AGV
+CHE_DO_SENT_DATA_AGV = True # Biến ON/OFF chế độ gửi dữ liệu đến AGV
 
 
 gui_dieu_khien_trung_tam = {
@@ -73,14 +73,6 @@ app = Flask(__name__)
 app.config.from_object(AGVConfig)
 
 
-def convert_danh_sach_duong_di(p_actual):
-    # AGVConfig.danh_sach_diem
-    danh_sach_duong_di = []
-    for i in range(len(p_actual)):
-        x = AGVConfig.danh_sach_diem[p_actual[i]][0]
-        y = AGVConfig.danh_sach_diem[p_actual[i]][1]
-        danh_sach_duong_di.append([x, y])
-    return danh_sach_duong_di
 
 def update_agv_states():
     """
@@ -93,56 +85,25 @@ def update_agv_states():
         user_config = AGVConfig.thong_tin_da_chon.get(agv, {})
         if (user_config.get("che_do_dieu_khien_truc_tiep") == "on") == True:
             # continue # Nếu chế độ điều khiển trực tiếp tắt, bỏ qua cập nhật trạng thái cho AGV này
-            # 1. Cập nhật đích đến
-            AGVConfig.AGV_STATES[agv]["dich_den"] = AGVConfig.dich_den_gui_agv.get(agv, "")
+            # 1. Cập nhật điểm cuối (đích đến)
+            AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["diem_cuoi"] = AGVConfig.diem_cuoi_gui_agv.get(agv, "")
             
             # 2. Cập nhật trạng thái gửi AGV (logic: tra_hang/lay_hang -> giữ nguyên, khác -> nang)
             chon_gia = user_config.get("chon_gia_hang", "")
-            if chon_gia == "tra_hang":
-                AGVConfig.AGV_STATES[agv]["trang_thai_gui_agv"] = "tra_hang"
-            elif chon_gia == "lay_hang":
-                AGVConfig.AGV_STATES[agv]["trang_thai_gui_agv"] = "lay_hang"
+            if chon_gia == "lay_xe_linh_kien":
+                AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["yeu_cau_gui_agv"] = "lay_xe_linh_kien"
+            elif chon_gia == "tra_xe_linh_kien":
+                AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["yeu_cau_gui_agv"] = "tra_xe_linh_kien"
             else:
-                AGVConfig.AGV_STATES[agv]["trang_thai_gui_agv"] = "nang"
-                
+                AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["yeu_cau_gui_agv"] = "lay_linh_kien"
             # 3. Cập nhật đường đi (Paths) - Tạm thời để rỗng
             # AGVConfig.AGV_STATES[agv]["paths"] = []
-            
             # 4. Cập nhật các cờ Boolean (Chuyển đổi từ 'on'/'off' sang True/False)
-            AGVConfig.AGV_STATES[agv]["di_chuyen_khong_hang"] = (user_config.get("di_chuyen_khong_hang") == "on")
-            AGVConfig.AGV_STATES[agv]["che_do_dieu_khien_truc_tiep"] = (user_config.get("che_do_dieu_khien_truc_tiep") == "on")
-
-        # if agv == "agv1": # Chỉ in trạng thái của agv1 để kiểm tra (bạn có thể thay đổi hoặc bỏ qua)
-        #     print(AGVConfig.AGV_STATES[agv]) # In trạng thái AGV sau khi cập nhật để kiểm tra
-        # chuyển đổi danh sách đường đi sang tọa độ đường đi
-        # AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(AGVConfig.AGV_STATES[agv]["danh_sach_duong_di"])
-        # test
-        # if agv == "agv1":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["G35", "G34", "W3"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 30
-        # elif agv == "agv2":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P53", "P50"])
+            # AGVConfig.AGV_STATES[agv]["dieu_khien_agv"]["di_chuyen_khong_hang"] đã bị loại bỏ
+            AGVConfig.che_do_dieu_khien_truc_tiep[agv] = (user_config.get("che_do_dieu_khien_truc_tiep") == "on")
+        else:
+            AGVConfig.che_do_dieu_khien_truc_tiep[agv] = False
             
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 40
-        # elif agv == "agv3":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P43", "P40"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 50
-        # elif agv == "agv4":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P48", "G35", "G36"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 60
-        # elif agv == "agv5":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P19", "P18", "P17"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 70
-        # elif agv == "agv6":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P13", "P12", "P11"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 80
-        # elif agv == "agv7":
-        #     AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"] = convert_danh_sach_duong_di(["P76", "G28", "W1"])
-        #     AGVConfig.AGV_STATES[agv]["goc_agv"] = 90
-        # AGVConfig.AGV_STATES[agv]["toa_do"] = {"x": AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"][0][0], "y": AGVConfig.AGV_STATES[agv]["danh_sach_toa_do_duong_di"][0][1]}
-
-
-
 
 
     if CHE_DO_SENT_DATA_AGV:
@@ -180,16 +141,14 @@ def update_agv_states():
             # 1. Chuẩn bị dữ liệu gửi đi (dạng gui_dieu_khien_trung_tam)
             payload_trung_tam = []
             for agv_id in AGVConfig.DANH_SACH_AGV:
-                try:
-                    agv_num = int(agv_id.replace("agv", ""))
-                except:
-                    agv_num = 0
-                payload_trung_tam.append({
-                    "AGV_ID": agv_num,
-                    "Trang_thai": AGVConfig.AGV_STATES[agv_id]["trang_thai_gui_agv"],
-                    "Vi_tri_hien_tai": AGVConfig.AGV_STATES[agv_id]["vi_tri_hien_tai"],
-                    "mgs": AGVConfig.AGV_STATES[agv_id]["message"]
-                })
+                agv_num = int(agv_id.replace("agv", ""))
+                if AGVConfig.che_do_dieu_khien_truc_tiep[agv_id] == False:
+                    payload_trung_tam.append({
+                        "AGV_ID": agv_num,
+                        "Trang_thai": "",
+                        "Vi_tri_hien_tai": AGVConfig.AGV_STATES[agv_id]["thong_tin_agv"]["diem_tiep_theo"],
+                        "mgs": AGVConfig.AGV_STATES[agv_id]["thong_tin_agv"]["message"]
+                    })
             # ví dụ
             payload_trung_tam = [{  "AGV_ID": 1,
                                     "Trang_thai": "PICKING",
@@ -219,22 +178,22 @@ def update_agv_states():
                     for cmd in data_tt["commands"]:
                         agv_id_num = cmd.get("agV_ID")
                         agv_key = f"agv{agv_id_num}"
-                        dich_den = cmd.get("dich_den")
+                        diem_cuoi_moi = cmd.get("dich_den")
 
-                        dich_den_new = None
+                        diem_cuoi_new = None
                         for _, point_data in AGVConfig.BAN_DO_KE.items():
                             for item in point_data:
                                 # item cấu trúc ["TenKe", "TenDiem"]
-                                if item[0] == dich_den:
-                                    dich_den_new = item[1]
+                                if item[0] == diem_cuoi_moi:
+                                    diem_cuoi_new = item[1]
                                     break
-                            if dich_den_new:
+                            if diem_cuoi_new:
                                 break
-                        print("dich_den_new", dich_den_new)
+                        print("diem_cuoi_new", diem_cuoi_new)
                         if agv_key in AGVConfig.AGV_STATES:
-                            # Cập nhật đích đến nếu có
-                            if dich_den_new:
-                                AGVConfig.AGV_STATES[agv_key]["dich_den"] = dich_den_new
+                            # Cập nhật điểm cuối nếu có
+                            if diem_cuoi_new:
+                                AGVConfig.AGV_STATES[agv_key]["dieu_khien_agv"]["diem_cuoi"] = diem_cuoi_new
         except Exception as e:
             print(f"Lỗi kết nối API trung tâm: {e}")
 
@@ -292,28 +251,28 @@ def send_request():
         if danh_sach and len(danh_sach) > 0:
             AGVConfig.gia_tri_hang_hien_tai[agv_name] = danh_sach[0]
             
-            # Logic tìm điểm đích cho phần tử đầu tiên (Index 0) ngay khi gửi
-            dich_den = ""
+            # Logic tìm điểm cuối cho phần tử đầu tiên (Index 0) ngay khi gửi
+            diem_cuoi = ""
             for _, point_data in AGVConfig.BAN_DO_KE.items():
                 for item in point_data:
                     # item cấu trúc ["TenKe", "TenDiem"]
                     if item[0] == danh_sach[0]:
-                        dich_den = item[1]
+                        diem_cuoi = item[1]
                         break
-                if dich_den != "":
+                if diem_cuoi != "":
                     break
-            AGVConfig.dich_den_gui_agv[agv_name] = dich_den
+            AGVConfig.diem_cuoi_gui_agv[agv_name] = diem_cuoi
             
         else:
             AGVConfig.gia_tri_hang_hien_tai[agv_name] = ""
-            AGVConfig.dich_den_gui_agv[agv_name] = ""
+            AGVConfig.diem_cuoi_gui_agv[agv_name] = ""
             
         update_agv_states() # Cập nhật AGV_STATES ngay sau khi thay đổi cấu hình
         return jsonify({'status': 'success', 'message': 'Đã gửi yêu cầu'})
     return jsonify({'status': 'error', 'message': 'Dữ liệu không hợp lệ'}), 400
 
 @app.route('/api/map_image')
-def map_image(): # This function is duplicated, consider removing one instance.
+def map_image(): # This function is duplicated, consider removing one instance. 
     """
     API trả về ảnh bản đồ trực tiếp từ bộ nhớ (numpy array -> png).
     Không cần lưu file ra đĩa.
