@@ -9,8 +9,8 @@
         "diem_lay_hang": "G11"
     },
     {
-        "x": 0.3524,
-        "y": 0.409,
+        "x": 0.3539681117487465,
+        "y": 0.40903443132330414,
         "name": "B02",
         "width": 50,
         "height": 30,
@@ -33,7 +33,7 @@
         "width": 50,
         "height": 30,
         "group": "B",
-        "diem_lay_hang": "G21"
+        "diem_lay_hang": "G31"
     },
     {
         "x": 0.3936,
@@ -42,16 +42,16 @@
         "width": 50,
         "height": 30,
         "group": "B",
-        "diem_lay_hang": "G21"
+        "diem_lay_hang": "G31"
     },
     {
-        "x": 0.4044887982014236,
-        "y": 0.4085163942625231,
+        "x": 0.4044,
+        "y": 0.4086,
         "name": "B06",
         "width": 50,
         "height": 30,
         "group": "B",
-        "diem_lay_hang": "G21"
+        "diem_lay_hang": "G41"
     },
     {
         "x": 0.3538,
@@ -78,7 +78,7 @@
         "width": 50,
         "height": 30,
         "group": "C",
-        "diem_lay_hang": "G21"
+        "diem_lay_hang": "G31"
     },
     {
         "x": 0.3928,
@@ -87,7 +87,7 @@
         "width": 50,
         "height": 30,
         "group": "C",
-        "diem_lay_hang": "G21"
+        "diem_lay_hang": "G31"
     },
     {
         "x": 0.405,
@@ -96,7 +96,7 @@
         "width": 50,
         "height": 30,
         "group": "C",
-        "diem_lay_hang": "G21"
+        "diem_lay_hang": "G41"
     },
     {
         "x": 0.4196,
@@ -105,7 +105,7 @@
         "width": 50,
         "height": 30,
         "group": "C",
-        "diem_lay_hang": "G31"
+        "diem_lay_hang": "G41"
     },
     {
         "x": 0.4318,
@@ -114,7 +114,7 @@
         "width": 50,
         "height": 30,
         "group": "C",
-        "diem_lay_hang": "G31"
+        "diem_lay_hang": "G51"
     },
     {
         "x": 0.4454,
@@ -123,7 +123,7 @@
         "width": 50,
         "height": 30,
         "group": "C",
-        "diem_lay_hang": "G41"
+        "diem_lay_hang": "G51"
     },
     {
         "x": 0.4576,
@@ -132,7 +132,7 @@
         "width": 50,
         "height": 30,
         "group": "C",
-        "diem_lay_hang": "G41"
+        "diem_lay_hang": "G61"
     },
     {
         "x": 0.4708,
@@ -141,7 +141,7 @@
         "width": 50,
         "height": 30,
         "group": "C",
-        "diem_lay_hang": "G51"
+        "diem_lay_hang": "G61"
     },
     {
         "x": 0.484,
@@ -150,7 +150,7 @@
         "width": 50,
         "height": 30,
         "group": "C",
-        "diem_lay_hang": "G51"
+        "diem_lay_hang": "G71"
     },
     {
         "x": 0.418,
@@ -159,7 +159,7 @@
         "width": 50,
         "height": 30,
         "group": "B",
-        "diem_lay_hang": "G31"
+        "diem_lay_hang": "G41"
     },
     {
         "x": 0.4318,
@@ -168,7 +168,7 @@
         "width": 50,
         "height": 30,
         "group": "B",
-        "diem_lay_hang": "G31"
+        "diem_lay_hang": "G51"
     },
     {
         "x": 0.4448,
@@ -177,7 +177,7 @@
         "width": 50,
         "height": 30,
         "group": "B",
-        "diem_lay_hang": "G41"
+        "diem_lay_hang": "G51"
     },
     {
         "x": 0.4584,
@@ -186,7 +186,7 @@
         "width": 50,
         "height": 30,
         "group": "B",
-        "diem_lay_hang": "G41"
+        "diem_lay_hang": "G61"
     },
     {
         "x": 0.4706,
@@ -195,42 +195,537 @@
         "width": 50,
         "height": 30,
         "group": "B",
-        "diem_lay_hang": "G51"
+        "diem_lay_hang": "G61"
     },
     {
         "x": 0.4846,
         "y": 0.407,
-        "name": "B12",
+        "name": "B11",
         "width": 50,
         "height": 30,
         "group": "B",
-        "diem_lay_hang": "G51"
+        "diem_lay_hang": "G71"
     },
     {
-        "x": 0.3387807101853178,
-        "y": 0.4617447649899122,
+        "x": 0.3388,
+        "y": 0.4618,
         "name": "X1",
         "width": 50,
         "height": 30,
-        "group": "tra_hang",
+        "group": "lay_hang",
         "diem_lay_hang": "X1"
     },
     {
-        "x": 0.3714,
-        "y": 0.5178,
+        "x": 0.3572,
+        "y": 0.5192,
         "name": "J01",
         "width": 50,
         "height": 30,
         "group": "J",
-        "diem_lay_hang": "E21"
+        "diem_lay_hang": "G25"
     },
     {
-        "x": 0.3293721833306269,
-        "y": 0.5022890995344893,
+        "x": 0.3572,
+        "y": 0.5136,
         "name": "I01",
         "width": 50,
         "height": 30,
         "group": "I",
-        "diem_lay_hang": "H010"
+        "diem_lay_hang": "G24"
+    },
+    {
+        "x": 0.3536,
+        "y": 0.4374,
+        "name": "D01",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G22"
+    },
+    {
+        "x": 0.3510540279456214,
+        "y": 0.45744798755317534,
+        "name": "E01",
+        "width": 50,
+        "height": 30,
+        "group": "",
+        "diem_lay_hang": ""
+    },
+    {
+        "x": 0.3499364527378032,
+        "y": 0.46399378519896783,
+        "name": "F01",
+        "width": 50,
+        "height": 30,
+        "group": "",
+        "diem_lay_hang": ""
+    },
+    {
+        "x": 0.3552,
+        "y": 0.4864,
+        "name": "G01",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G23"
+    },
+    {
+        "x": 0.3552,
+        "y": 0.4918,
+        "name": "H01",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G24"
+    },
+    {
+        "x": 0.371,
+        "y": 0.519,
+        "name": "J02",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "G25"
+    },
+    {
+        "x": 0.3832,
+        "y": 0.5186,
+        "name": "J03",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "G35"
+    },
+    {
+        "x": 0.3952,
+        "y": 0.5184,
+        "name": "J04",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "G35"
+    },
+    {
+        "x": 0.4096,
+        "y": 0.5176,
+        "name": "J05",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "G45"
+    },
+    {
+        "x": 0.4218,
+        "y": 0.5172,
+        "name": "J06",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "G45"
+    },
+    {
+        "x": 0.4352,
+        "y": 0.517,
+        "name": "J07",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "G55"
+    },
+    {
+        "x": 0.4478,
+        "y": 0.517,
+        "name": "J08",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "G55"
+    },
+    {
+        "x": 0.4608,
+        "y": 0.5164,
+        "name": "J09",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "G65"
+    },
+    {
+        "x": 0.4744,
+        "y": 0.516,
+        "name": "J10",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "G65"
+    },
+    {
+        "x": 0.4878,
+        "y": 0.516,
+        "name": "J11",
+        "width": 50,
+        "height": 30,
+        "group": "J",
+        "diem_lay_hang": "G65"
+    },
+    {
+        "x": 0.3708,
+        "y": 0.5136,
+        "name": "I02",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "G24"
+    },
+    {
+        "x": 0.3828,
+        "y": 0.5134,
+        "name": "I03",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "G34"
+    },
+    {
+        "x": 0.395,
+        "y": 0.5128,
+        "name": "I04",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "G34"
+    },
+    {
+        "x": 0.409,
+        "y": 0.5128,
+        "name": "I05",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "G44"
+    },
+    {
+        "x": 0.4218,
+        "y": 0.5128,
+        "name": "I06",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "G44"
+    },
+    {
+        "x": 0.4348,
+        "y": 0.5124,
+        "name": "I07",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "G54"
+    },
+    {
+        "x": 0.4476,
+        "y": 0.5124,
+        "name": "I08",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "G54"
+    },
+    {
+        "x": 0.4602,
+        "y": 0.5124,
+        "name": "I09",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "G64"
+    },
+    {
+        "x": 0.474,
+        "y": 0.5124,
+        "name": "I10",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "G64"
+    },
+    {
+        "x": 0.487,
+        "y": 0.5122,
+        "name": "I11",
+        "width": 50,
+        "height": 30,
+        "group": "I",
+        "diem_lay_hang": "G64"
+    },
+    {
+        "x": 0.36879508155378393,
+        "y": 0.4916754434112023,
+        "name": "H02",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G24"
+    },
+    {
+        "x": 0.38329551311098603,
+        "y": 0.49141879860488014,
+        "name": "H03",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G34"
+    },
+    {
+        "x": 0.39510117420180546,
+        "y": 0.49141879860488014,
+        "name": "H04",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G34"
+    },
+    {
+        "x": 0.4081258981226551,
+        "y": 0.49052054178275256,
+        "name": "H05",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G44"
+    },
+    {
+        "x": 0.42215879486756347,
+        "y": 0.49012936617178515,
+        "name": "H06",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G44"
+    },
+    {
+        "x": 0.4364,
+        "y": 0.4892,
+        "name": "H07",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G54"
+    },
+    {
+        "x": 0.44738184643290546,
+        "y": 0.49012936617178515,
+        "name": "H08",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G64"
+    },
+    {
+        "x": 0.46161023449540606,
+        "y": 0.48975979765068123,
+        "name": "H09",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G64"
+    },
+    {
+        "x": 0.475,
+        "y": 0.4892,
+        "name": "H10",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G64"
+    },
+    {
+        "x": 0.488,
+        "y": 0.4884,
+        "name": "H11",
+        "width": 50,
+        "height": 30,
+        "group": "H",
+        "diem_lay_hang": "G64"
+    },
+    {
+        "x": 0.3686,
+        "y": 0.4862,
+        "name": "G02",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G23"
+    },
+    {
+        "x": 0.3828,
+        "y": 0.4856,
+        "name": "G03",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G33"
+    },
+    {
+        "x": 0.3946,
+        "y": 0.485,
+        "name": "G04",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G33"
+    },
+    {
+        "x": 0.4076,
+        "y": 0.485,
+        "name": "G05",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G43"
+    },
+    {
+        "x": 0.4212,
+        "y": 0.4848,
+        "name": "G06",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G43"
+    },
+    {
+        "x": 0.4362,
+        "y": 0.4842,
+        "name": "G07",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G53"
+    },
+    {
+        "x": 0.4478,
+        "y": 0.4834,
+        "name": "G08",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G63"
+    },
+    {
+        "x": 0.4614,
+        "y": 0.4836,
+        "name": "G09",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G63"
+    },
+    {
+        "x": 0.4748,
+        "y": 0.4832,
+        "name": "G10",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G63"
+    },
+    {
+        "x": 0.4878,
+        "y": 0.483,
+        "name": "G11",
+        "width": 50,
+        "height": 30,
+        "group": "G",
+        "diem_lay_hang": "G63"
+    },
+    {
+        "x": 0.36679884139665236,
+        "y": 0.43726018640611786,
+        "name": "D02",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G22"
+    },
+    {
+        "x": 0.381,
+        "y": 0.4372,
+        "name": "D03",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G32"
+    },
+    {
+        "x": 0.393,
+        "y": 0.4372,
+        "name": "D04",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G32"
+    },
+    {
+        "x": 0.405,
+        "y": 0.436,
+        "name": "D05",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G42"
+    },
+    {
+        "x": 0.4198,
+        "y": 0.436,
+        "name": "D06",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G52"
+    },
+    {
+        "x": 0.4318,
+        "y": 0.4358,
+        "name": "D07",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G52"
+    },
+    {
+        "x": 0.4452,
+        "y": 0.436,
+        "name": "D08",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G52"
+    },
+    {
+        "x": 0.4574,
+        "y": 0.435,
+        "name": "D09",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G62"
+    },
+    {
+        "x": 0.4714,
+        "y": 0.4348,
+        "name": "D10",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G72"
+    },
+    {
+        "x": 0.4838,
+        "y": 0.4342,
+        "name": "D11",
+        "width": 50,
+        "height": 30,
+        "group": "D",
+        "diem_lay_hang": "G72"
     }
 ]

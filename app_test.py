@@ -121,6 +121,8 @@ def update_agv_states():
         # Gửi yêu cầu đến từng AGV
         for agv_id, endpoint in AGVConfig.AGV_ENDPOINTS.items():
             try:
+                # if agv_id == "agv1":
+                #     print(endpoint, " ppppppppppppppp")
                 # Gửi dữ liệu của tất cả AGV cho mỗi AGV
                 response = requests.post(endpoint, json=data_to_send_all, timeout=1)
                 if response.status_code == 200:
@@ -140,7 +142,7 @@ def update_agv_states():
                             "last_seen": time.time()
                         }
 
-                        print(f"Nhận phản hồi từ {agv_id}: {AGVConfig.AGV_STATES[agv_id]}")
+                        print(f"--------Nhận phản hồi từ {agv_id}--------: {AGVConfig.AGV_STATES[agv_id]}")
                 else:
                     print(f"Lỗi khi giao tiếp với {agv_id}: {response.status_code}")
             except requests.exceptions.RequestException as e:
@@ -777,7 +779,7 @@ def icp_simulation_loop():
         #             "agv7": {"start": "G75", "goal": "G65"}
         #             }
 
-        # print("data_agv", data_agv)
+        # print("data_---------agv", data_agv)
         output_cbs = cbs.main(data_agv, AGVConfig_2.danh_sach_diem_mm, AGVConfig_2.danh_sach_duong)
         # print("data cbs \n", output_cbs,"\n","data agv \n",data_agv)
         # {'schedule': {  'agv3': [{'t': 0, 'x': -13460, 'y': 2480, 'd': 0, 'name': 'G23'}, 
